@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Config
+current-context: keep-ctx
+preferences: {}
+clusters:
+    - name: keep-cluster
+      cluster:
+        server: https://keep.example.com:6443
+contexts:
+    - name: keep-ctx
+      context:
+        cluster: keep-cluster
+        user: keep-user
+users:
+    - name: keep-user
+      user:
+        token: keep-token
+x-vendor-extension:
+    owner: platform-team

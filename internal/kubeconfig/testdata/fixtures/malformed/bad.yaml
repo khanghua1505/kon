@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Config
+clusters:
+- name: broken
+  cluster:
+    server: "unterminated
+    bad: [1, 2

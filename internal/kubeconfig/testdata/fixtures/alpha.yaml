@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Config
+current-context: alpha-dev
+preferences: {}
+clusters:
+- name: alpha-cluster
+  cluster:
+    server: https://alpha.example.com:6443
+    certificate-authority-data: QUxQSEE=
+users:
+- name: alpha-user
+  user:
+    token: alpha-token
+contexts:
+- name: alpha-dev
+  context:
+    cluster: alpha-cluster
+    user: alpha-user
+    namespace: alpha-ns
