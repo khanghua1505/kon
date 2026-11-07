@@ -65,6 +65,16 @@ Kubie reads its own settings from `~/.kube/kubie.yaml`. The file uses the same k
 as upstream kubie (`shell`, `default_editor`, `configs`, `prompt`, `behavior`,
 `hooks`, `fzf`).
 
+## Divergences from upstream
+
+Intentional/known behavioral differences vs kubie-org/kubie (Rust):
+
+- **State file location.** Upstream fixes the state path at the platform data dir (`kubie/state.json`). This port honors `$KUBIE_STATE` when set and falls back to the same platform data dir otherwise.
+- **`ctx -n ""`.** Upstream treats an explicit empty namespace as an override. Here an empty `-n` value means "not requested" and falls back to the remembered namespace.
+- **`KUBIE_KUBECONFIG` error text.** Upstream: `KUBIE_KUBECONFIG variable not set`. Here: `KUBIE_KUBECONFIG env variable missing`.
+- **Namespace-list parsing.** Upstream splits `kubectl` output lines on the first space only; here on the first space or tab. Equivalent for real `kubectl` output.
+- **State writes.** Upstream writes the state file in place; here a temp file is written next to it and renamed, so readers never see a partial file. The state directory is also pre-checked and a non-directory path reported explicitly.
+
 ## Attribution
 
 Derived from kubie by Simon Bernier St-Pierre (github.com/kubie-org/kubie), Zlib license.
