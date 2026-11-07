@@ -181,7 +181,6 @@ func runInContext(cmd *cobra.Command, config *kubeconfig.KubeConfig, command []s
 		"KUBIE_KUBECONFIG="+path,
 		"KUBIE_ACTIVE=1",
 		"KUBIE_DEPTH="+strconv.Itoa(vars.Depth()+1),
-		"KUBIE_EXEC=1",
 	)
 
 	if err := child.Start(); err != nil {
@@ -207,11 +206,11 @@ func runInContext(cmd *cobra.Command, config *kubeconfig.KubeConfig, command []s
 		for {
 			select {
 			case sig := <-signals:
-				_ = child.Process.Signal(sig)
+				_ = child.Process.Signal(sig) // best effort: child may have exited
 
 				if terminatingSignal(sig) {
 					signal.Stop(signals)
-					_ = syscall.Kill(syscall.Getpid(), sig.(syscall.Signal))
+					_ = syscall.Kill(syscall.Getpid(), sig.(syscall.Signal)) // best effort re-raise
 					return
 				}
 			case <-done:
