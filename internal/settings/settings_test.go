@@ -8,7 +8,10 @@ import (
 )
 
 func TestDefaultMatchesUpstream(t *testing.T) {
-	s := Default()
+	s, err := Default()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if !s.Fzf.Mouse {
 		t.Error("fzf.mouse default must be true")
@@ -80,7 +83,10 @@ func TestGetKubeConfigsPathsExcludesMatches(t *testing.T) {
 		}
 	}
 
-	s := Default()
+	s, err := Default()
+	if err != nil {
+		t.Fatal(err)
+	}
 	s.Configs.Include = []string{filepath.Join(dir, "*.yaml"), filepath.Join(dir, "*.yml")}
 	s.Configs.Exclude = []string{filepath.Join(dir, "skipped.yaml")}
 

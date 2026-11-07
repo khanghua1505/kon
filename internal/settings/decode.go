@@ -27,13 +27,13 @@ const (
 
 func (s *Settings) UnmarshalYAML(value *yaml.Node) error {
 	type raw struct {
-		Shell         *string         `yaml:"shell"`
-		DefaultEditor *string         `yaml:"default_editor"`
-		Configs       *Configs        `yaml:"configs"`
-		Prompt        *Prompt         `yaml:"prompt"`
-		Behavior      *Behavior       `yaml:"behavior"`
-		Hooks         *Hooks          `yaml:"hooks"`
-		Fzf           *Fzf            `yaml:"fzf"`
+		Shell         *string   `yaml:"shell"`
+		DefaultEditor *string   `yaml:"default_editor"`
+		Configs       *Configs  `yaml:"configs"`
+		Prompt        *Prompt   `yaml:"prompt"`
+		Behavior      *Behavior `yaml:"behavior"`
+		Hooks         *Hooks    `yaml:"hooks"`
+		Fzf           *Fzf      `yaml:"fzf"`
 	}
 
 	var parsed raw
@@ -41,7 +41,11 @@ func (s *Settings) UnmarshalYAML(value *yaml.Node) error {
 		return err
 	}
 
-	*s = *Default()
+	def, err := Default()
+	if err != nil {
+		return err
+	}
+	*s = *def
 
 	if parsed.Shell != nil {
 		s.Shell = parsed.Shell
@@ -85,7 +89,11 @@ func (c *Configs) UnmarshalYAML(value *yaml.Node) error {
 		return err
 	}
 
-	*c = Configs{Include: defaultIncludePatterns(), Exclude: []string{}}
+	home, err := homeDir()
+	if err != nil {
+		return err
+	}
+	*c = Configs{Include: defaultIncludePatterns(home), Exclude: []string{}}
 
 	if parsed.Include != nil {
 		c.Include = *parsed.Include
@@ -139,9 +147,9 @@ func (p *Prompt) UnmarshalYAML(value *yaml.Node) error {
 
 func (b *Behavior) UnmarshalYAML(value *yaml.Node) error {
 	type raw struct {
-		ValidateNamespaces           *ValidateNamespaces   `yaml:"validate_namespaces"`
+		ValidateNamespaces           *ValidateNamespaces    `yaml:"validate_namespaces"`
 		PrintContextInExec           *ContextHeaderBehavior `yaml:"print_context_in_exec"`
-		AllowMultipleContextPatterns *bool                 `yaml:"allow_multiple_context_patterns"`
+		AllowMultipleContextPatterns *bool                  `yaml:"allow_multiple_context_patterns"`
 	}
 
 	var parsed raw

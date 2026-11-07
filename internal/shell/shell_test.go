@@ -103,7 +103,10 @@ exit 7
 	executablePath = func() (string, error) { return "/usr/local/bin/kubie", nil }
 	t.Cleanup(func() { executablePath = oldExecutablePath })
 
-	s := settings.Default()
+	s, err := settings.Default()
+	if err != nil {
+		t.Fatal(err)
+	}
 	configPath := filepath.Join(dir, "kubeconfig")
 	sessionPath := filepath.Join(dir, "session.json")
 
@@ -182,7 +185,10 @@ printf '%s\n' "$*" >> "` + log + `"
 	executablePath = func() (string, error) { return "/usr/local/bin/kubie", nil }
 	t.Cleanup(func() { executablePath = oldExecutablePath })
 
-	s := settings.Default()
+	s, err := settings.Default()
+	if err != nil {
+		t.Fatal(err)
+	}
 	s.Hooks.StopCtx = "echo stop"
 
 	info := &spawnInfo{
@@ -221,7 +227,10 @@ printf '%s\n' "$*" >> "` + log + `"
 // TestBashRCContent checks that the rc file carries the startup files and the
 // prompt of kubie.
 func TestBashRCContent(t *testing.T) {
-	s := settings.Default()
+	s, err := settings.Default()
+	if err != nil {
+		t.Fatal(err)
+	}
 	info := &spawnInfo{
 		settings: s,
 		prompt:   "PROMPT",

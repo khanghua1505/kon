@@ -206,11 +206,15 @@ func runInContext(cmd *cobra.Command, config *kubeconfig.KubeConfig, command []s
 		for {
 			select {
 			case sig := <-signals:
-				_ = child.Process.Signal(sig) // best effort: child may have exited
+				if err := child.Process.Signal(sig); err != nil {
+					fmt.Fprintf(os.Stderr, "kubie: failed to forward signal to child: %v\n", err)
+				}
 
 				if terminatingSignal(sig) {
 					signal.Stop(signals)
-					_ = syscall.Kill(syscall.Getpid(), sig.(syscall.Signal)) // best effort re-raise
+					if err := syscall.Kill(syscall.Getpid(), sig.(syscall.Signal)); err != nil {
+						fmt.Fprintf(os.Stderr, "kubie: failed to re-raise signal: %v\n", err)
+					}
 					return
 				}
 			case <-done:

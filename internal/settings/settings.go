@@ -66,16 +66,20 @@ type Fzf struct {
 }
 
 // Default returns the settings kubie uses when no config file exists.
-func Default() *Settings {
+func Default() (*Settings, error) {
+	home, err := homeDir()
+	if err != nil {
+		return nil, err
+	}
 	return &Settings{
-		Configs: Configs{Include: defaultIncludePatterns()},
+		Configs: Configs{Include: defaultIncludePatterns(home)},
 		Prompt:  Prompt{ShowDepth: true},
 		Behavior: Behavior{
 			ValidateNamespaces: ValidateNamespacesTrue,
 			PrintContextInExec: ContextHeaderAuto,
 		},
 		Fzf: Fzf{Mouse: true},
-	}
+	}, nil
 }
 
 // Path returns the path of kubie's own config file.
@@ -97,7 +101,10 @@ func Load() (*Settings, error) {
 		return nil, err
 	}
 
-	settings := Default()
+	settings, err := Default()
+	if err != nil {
+		return nil, err
+	}
 
 	data, err := os.ReadFile(path)
 	switch {
@@ -205,12 +212,7 @@ func homeDir() (string, error) {
 	return home, nil
 }
 
-func defaultIncludePatterns() []string {
-	home, err := homeDir()
-	if err != nil {
-		return nil
-	}
-
+func defaultIncludePatterns(home string) []string {
 	return []string{
 		filepath.Join(home, ".kube", "config"),
 		filepath.Join(home, ".kube", "*.yml"),
