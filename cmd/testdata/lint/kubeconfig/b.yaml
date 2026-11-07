@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Config
+clusters:
+- name: shared-cluster
+  cluster:
+    server: https://b.example.com
+contexts:
+- name: ctx-b
+  context:
+    cluster: shared-cluster
+    user: user-a
+- name: dup
+  context:
+    cluster: shared-cluster
+    user: user-a
+users:
+- name: user-a
+  user:
+    token: token-c

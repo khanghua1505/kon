@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Config
+clusters:
+- name: cluster-a
+  cluster:
+    server: https://cluster-a.example.com
+contexts:
+- name: ctx-a
+  context:
+    cluster: cluster-a
+    namespace: default
+    user: user-a
+users:
+- name: user-a
+  user:
+    token: token-a

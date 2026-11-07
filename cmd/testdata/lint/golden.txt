@@ -1,0 +1,7 @@
+Cluster 'orphan-cluster' has no context referencing it in file testdata/lint/kubeconfig/a.yaml
+A cluster named 'shared-cluster' appears more than once in file testdata/lint/kubeconfig/a.yaml
+User 'orphan-user' has no context referencing it in file testdata/lint/kubeconfig/a.yaml
+A user named 'user-a' appears more than once in file testdata/lint/kubeconfig/a.yaml
+Context 'dup' references unknown cluster 'missing-cluster' in file testdata/lint/kubeconfig/a.yaml
+Context 'dup' references unknown users 'missing-user' in file testdata/lint/kubeconfig/a.yaml
+A context name 'dup' appears more than once in file testdata/lint/kubeconfig/b.yaml

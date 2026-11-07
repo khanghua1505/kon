@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Config
+clusters:
+- name: shared-cluster
+  cluster:
+    server: https://a.example.com
+- name: orphan-cluster
+  cluster:
+    server: https://orphan.example.com
+- name: shared-cluster
+  cluster:
+    server: https://a-duplicate.example.com
+contexts:
+- name: ctx-a
+  context:
+    cluster: shared-cluster
+    user: user-a
+- name: dup
+  context:
+    cluster: missing-cluster
+    user: missing-user
+users:
+- name: user-a
+  user:
+    token: token-a
+- name: orphan-user
+  user:
+    token: token-b
+- name: user-a
+  user:
+    token: token-a-duplicate
