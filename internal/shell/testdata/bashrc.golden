@@ -1,0 +1,54 @@
+=== env ===
+KUBECONFIG=/tmp/kubie-test/kubeconfig
+KUBIE_ACTIVE=1
+KUBIE_DEPTH=4
+KUBIE_KUBECONFIG=/tmp/kubie-test/kubeconfig
+KUBIE_SESSION=/tmp/kubie-test/session.json
+KUBIE_STATE=/tmp/kubie-test/state.json
+KUBIE_PROMPT_DISABLE=0
+KUBIE_ZSH_USE_RPS1=0
+KUBIE_FISH_USE_RPROMPT=0
+KUBIE_XONSH_USE_RIGHT_PROMPT=0
+KUBIE_SHELL=bash
+=== rc ===
+
+KUBIE_LOGIN_SHELL=0
+if [[ "$OSTYPE" == "darwin"* ]] ; then
+    KUBIE_LOGIN_SHELL=1
+fi
+
+# Reference for loading behavior
+# https://shreevatsa.wordpress.com/2008/03/30/zshbash-startup-files-loading-order-bashrc-zshrc-etc/
+
+
+if [[ "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+    if [[ -f "/etc/profile" ]] ; then
+        source "/etc/profile"
+    fi
+
+    if [[ -f "$HOME/.bash_profile" ]] ; then
+        source "$HOME/.bash_profile"
+    elif [[ -f "$HOME/.bash_login" ]] ; then
+        source "$HOME/.bash_login"
+    elif [[ -f "$HOME/.profile" ]] ; then
+        source "$HOME/.profile"
+    fi
+else
+    if [[ -f "/etc/bash.bashrc" ]] ; then
+        source "/etc/bash.bashrc"
+    fi
+
+    if [[ -f "$HOME/.bashrc" ]] ; then
+        source "$HOME/.bashrc"
+    fi
+fi
+
+function __kubie_cmd_pre_exec__() {
+    export KUBECONFIG="$KUBIE_KUBECONFIG"
+}
+
+trap '__kubie_cmd_pre_exec__' DEBUG
+
+KUBIE_PROMPT='[\[\e[31m\]$(/usr/local/bin/kubie info ctx)\[\e[0m\]|\[\e[32m\]$(/usr/local/bin/kubie info ns)\[\e[0m\]|\[\e[34m\]4\[\e[0m\]]'
+PS1="$KUBIE_PROMPT $PS1"
+unset KUBIE_PROMPT

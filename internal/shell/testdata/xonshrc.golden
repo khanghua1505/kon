@@ -1,0 +1,49 @@
+=== env ===
+KUBECONFIG=/tmp/kubie-test/kubeconfig
+KUBIE_ACTIVE=1
+KUBIE_DEPTH=4
+KUBIE_KUBECONFIG=/tmp/kubie-test/kubeconfig
+KUBIE_SESSION=/tmp/kubie-test/session.json
+KUBIE_STATE=/tmp/kubie-test/state.json
+KUBIE_PROMPT_DISABLE=0
+KUBIE_ZSH_USE_RPS1=0
+KUBIE_FISH_USE_RPROMPT=0
+KUBIE_XONSH_USE_RIGHT_PROMPT=0
+KUBIE_SHELL=xonsh
+=== rc ===
+
+# https://xon.sh/xonshrc.html
+from pathlib import Path
+
+files = [
+    "/etc/xonshrc",
+    "~/.xonshrc",
+    "~/.config/xonsh/rc.xsh",
+]
+for file in files:
+    if Path(file).is_file():
+        source @(file)
+if Path("~/.config/xonsh/rc.d").is_dir():
+    for file in path.glob('*.xsh'):
+        source @(file)
+
+@events.on_precommand
+def __kubie_cmd_pre_exec__(cmd):
+    $KUBECONFIG = $KUBIE_KUBECONFIG
+
+$KUBIE_PROMPT='[\033[31m$(/usr/local/bin/kubie info ctx)\033[0m|\033[32m$(/usr/local/bin/kubie info ns)\033[0m|\033[34m4\033[0m]'
+import re
+
+# Fanciful prompt-command replacement as xonsh forces the use of PROMPT_FIELDS
+for match in re.finditer(r'\$\(([^)]*)\)', $KUBIE_PROMPT):
+    command = match.group(1)
+    name = command.split().pop()
+    $PROMPT_FIELDS[name] = evalx(f'lambda: $({command}).strip()')
+    $KUBIE_PROMPT = $KUBIE_PROMPT.replace(f'$({command})', '{' + name + '}')
+
+if $KUBIE_XONSH_USE_RIGHT_PROMPT == "1":
+    $RIGHT_PROMPT = $KUBIE_PROMPT + $RIGHT_PROMPT
+else:
+    $PROMPT = $KUBIE_PROMPT + $PROMPT
+
+del $KUBIE_PROMPT
