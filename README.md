@@ -19,6 +19,9 @@ The binary lands in `$GOBIN` (default `$(go env GOPATH)/bin`).
 
 Selectable menus are available using `kubie ctx` and `kubie ns`.
 
+`fzf` is an optional dependency. It enables interactive fuzzy selection; without
+it, kubie falls back to plain terminal lists.
+
 * `kubie ctx` display selectable menu of contexts
 * `kubie ctx <context>` switch current shell to given context (spawns shell if not kubie shell)
 * `kubie ctx -` switch back to previous context
@@ -46,6 +49,16 @@ Selectable menus are available using `kubie ctx` and `kubie ns`.
 * `kubie update` check for a new release and update the local installation
 * `kubie generate-completion [SHELL]` generate a completion script for the given shell
 
+## Completion
+
+Generate completion scripts for supported shells:
+
+```sh
+source <(kubie generate-completion bash)
+source <(kubie generate-completion zsh)
+kubie generate-completion fish | source
+```
+
 ### Settings
 
 Kubie reads its own settings from `~/.kube/kubie.yaml`. The file uses the same keys
@@ -53,10 +66,5 @@ as upstream kubie (`shell`, `default_editor`, `configs`, `prompt`, `behavior`,
 `hooks`, `fzf`).
 
 ## Attribution
-
-Derived from kubie by Simon Bernier St-Pierre (github.com/kubie-org/kubie), Zlib
-license.
-
-## ATTRIBUTION
 
 Derived from kubie by Simon Bernier St-Pierre (github.com/kubie-org/kubie), Zlib license.
