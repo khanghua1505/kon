@@ -26,6 +26,22 @@ func writeSettings(t *testing.T, includeGlob string) {
 	}
 }
 
+func writeSettingsWithBehavior(t *testing.T, includeGlob, printContextInExec string) {
+	t.Helper()
+
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+
+	if err := os.MkdirAll(filepath.Join(home, ".kube"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	content := fmt.Sprintf("configs:\n  include:\n    - %q\nbehavior:\n  print_context_in_exec: %s\n", includeGlob, printContextInExec)
+	if err := os.WriteFile(filepath.Join(home, ".kube", "kubie.yaml"), []byte(content), 0o600); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func runRoot(t *testing.T, args ...string) (string, error) {
 	t.Helper()
 
@@ -129,5 +145,55 @@ func TestExecSuccess(t *testing.T) {
 
 	if strings.TrimSpace(out) != "hello" {
 		t.Fatalf("unexpected command output: %q", out)
+	}
+}
+
+func TestExecSetsKubeEnvironmentAndContextHeader(t *testing.T) {
+	writeSettingsWithBehavior(t, "testdata/export/kubeconfig/*.yaml", "always")
+	t.Setenv("KUBIE_DEPTH", "")
+
+	out, err := runRoot(t, "exec", "ctx-a", "my-ns", "--", "sh", "-c", "printf '%s|%s|%s\\n' \"$KUBECONFIG\" \"$KUBIE_ACTIVE\" \"$KUBIE_DEPTH\"")
+	if err != nil {
+		t.Fatalf("exec failed: %v", err)
+	}
+
+	header := "CONTEXT => ctx-a\n"
+	separator := strings.Repeat("-", 20)
+
+	headerIndex := strings.Index(out, header)
+	if headerIndex < 0 {
+		t.Fatalf("missing context header in %q", out)
+	}
+
+	separatorIndex := strings.Index(out, separator)
+	if separatorIndex < 0 {
+		t.Fatalf("missing context separator in %q", out)
+	}
+
+	if separatorIndex < headerIndex {
+		t.Fatalf("separator printed before the header: %q", out)
+	}
+
+	var kubeconfigPath, active, depth string
+	for _, line := range strings.Split(out, "\n") {
+		parts := strings.SplitN(line, "|", 3)
+		if len(parts) != 3 {
+			continue
+		}
+
+		kubeconfigPath, active, depth = parts[0], parts[1], parts[2]
+	}
+
+	if active != "1" {
+		t.Fatalf("expected KUBIE_ACTIVE=1, got %q", active)
+	}
+
+	if depth != "1" {
+		t.Fatalf("expected KUBIE_DEPTH=1, got %q", depth)
+	}
+
+	base := filepath.Base(kubeconfigPath)
+	if !strings.HasPrefix(base, "kubie-config") || !strings.HasSuffix(base, ".yaml") {
+		t.Fatalf("unexpected KUBECONFIG path %q", kubeconfigPath)
 	}
 }
