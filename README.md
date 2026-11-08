@@ -10,8 +10,10 @@ Kubernetes contexts from multiple files. You can configure the paths where kon w
 
 kon also has other nice features such as `kon exec` which allows you to execute commands in a context and a namespace
 without having to spawn a shell, `kon lint` which scans your k8s config files for issues and informs you of what they
-are, a built-in TUI picker that removes kubie's external fuzzy-finder dependency, and `kon kubectl-alias` which
-generates a set of kubectl aliases in the style of [github.com/ahmetb/kubectl-aliases](https://github.com/ahmetb/kubectl-aliases).
+are, a built-in TUI picker that removes kubie's external fuzzy-finder dependency, `kon kubectl-alias` which
+generates a set of kubectl aliases in the style of [github.com/ahmetb/kubectl-aliases](https://github.com/ahmetb/kubectl-aliases),
+and kubectl plugin support: after `kon install`, every subcommand also runs as `kubectl kon <cmd>`, and `kubectl ctx` /
+`kubectl ns` pick context and namespace with the kon TUI.
 
 - [kon](#kon)
   - [Installation](#installation)
