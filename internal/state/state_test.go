@@ -25,7 +25,7 @@ func unsetEnv(t *testing.T, key string) {
 
 func TestModifyWritesTheUpstreamJsonShape(t *testing.T) {
 	statePath := filepath.Join(t.TempDir(), "state.json")
-	t.Setenv("KUBIE_STATE", statePath)
+	t.Setenv("KON_STATE", statePath)
 
 	err := state.Modify(func(current *state.State) error {
 		current.LastContext = pointer("ctx")
@@ -48,7 +48,7 @@ func TestModifyWritesTheUpstreamJsonShape(t *testing.T) {
 
 func TestModifySeesThePreviousState(t *testing.T) {
 	statePath := filepath.Join(t.TempDir(), "state.json")
-	t.Setenv("KUBIE_STATE", statePath)
+	t.Setenv("KON_STATE", statePath)
 
 	err := state.Modify(func(current *state.State) error {
 		current.LastContext = pointer("first")
@@ -84,7 +84,7 @@ func TestModifySeesThePreviousState(t *testing.T) {
 
 func TestModifyKeepsTheFileWhenTheCallbackFails(t *testing.T) {
 	statePath := filepath.Join(t.TempDir(), "state.json")
-	t.Setenv("KUBIE_STATE", statePath)
+	t.Setenv("KON_STATE", statePath)
 
 	err := state.Modify(func(current *state.State) error {
 		current.LastContext = pointer("ctx")
@@ -100,7 +100,7 @@ func TestModifyKeepsTheFileWhenTheCallbackFails(t *testing.T) {
 }
 
 func TestLoadMissingFile(t *testing.T) {
-	t.Setenv("KUBIE_STATE", filepath.Join(t.TempDir(), "state.json"))
+	t.Setenv("KON_STATE", filepath.Join(t.TempDir(), "state.json"))
 
 	loaded, err := state.Load()
 	if err != nil {
@@ -119,7 +119,7 @@ func TestLoadMalformedFile(t *testing.T) {
 	if err := os.WriteFile(statePath, []byte(`{"last_context":`), 0o600); err != nil {
 		t.Fatalf("could not write state file: %v", err)
 	}
-	t.Setenv("KUBIE_STATE", statePath)
+	t.Setenv("KON_STATE", statePath)
 
 	if _, err := state.Load(); err == nil {
 		t.Fatal("Load() = nil, want error for a malformed state file")
@@ -127,7 +127,7 @@ func TestLoadMalformedFile(t *testing.T) {
 }
 
 func TestMissingStateVariableErrorsWithoutPanic(t *testing.T) {
-	unsetEnv(t, "KUBIE_STATE")
+	unsetEnv(t, "KON_STATE")
 
 	defer func() {
 		if recovered := recover(); recovered != nil {
@@ -137,13 +137,13 @@ func TestMissingStateVariableErrorsWithoutPanic(t *testing.T) {
 
 	err := state.Modify(func(current *state.State) error { return nil })
 	if err == nil {
-		t.Fatal("Modify() = nil, want error when KUBIE_STATE is missing")
+		t.Fatal("Modify() = nil, want error when KON_STATE is missing")
 	}
 }
 
 func TestMissingStateDirectoryErrorsWithoutPanic(t *testing.T) {
 	statePath := filepath.Join(t.TempDir(), "missing", "state.json")
-	t.Setenv("KUBIE_STATE", statePath)
+	t.Setenv("KON_STATE", statePath)
 
 	defer func() {
 		if recovered := recover(); recovered != nil {
@@ -163,7 +163,7 @@ func TestMissingStateDirectoryErrorsWithoutPanic(t *testing.T) {
 
 func TestModifySerializesConcurrentWriters(t *testing.T) {
 	statePath := filepath.Join(t.TempDir(), "state.json")
-	t.Setenv("KUBIE_STATE", statePath)
+	t.Setenv("KON_STATE", statePath)
 
 	const goroutines = 2
 	const writesPerGoroutine = 25

@@ -89,9 +89,9 @@ func (kc *KubeConfig) WriteToFile(path string) error {
 }
 
 // WriteTemp writes the kubeconfig to a new temporary file named
-// kubie-config*.yaml with 0600 permissions and returns its path.
+// kon-config*.yaml with 0600 permissions and returns its path.
 func (kc *KubeConfig) WriteTemp() (string, error) {
-	file, err := os.CreateTemp("", "kubie-config*.yaml")
+	file, err := os.CreateTemp("", "kon-config*.yaml")
 	if err != nil {
 		return "", err
 	}

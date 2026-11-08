@@ -15,7 +15,7 @@ func spawnNu(info *spawnInfo) (int, error) {
 	for _, entry := range info.envVars.entries {
 		args.WriteString("$env." + entry.name + " = '" + entry.value + "';")
 
-		if entry.name == "KUBIE_PROMPT_DISABLE" && entry.value == "0" {
+		if entry.name == "KON_PROMPT_DISABLE" && entry.value == "0" {
 			args.WriteString(nuPromptCommand(info.prompt))
 		}
 	}

@@ -22,10 +22,10 @@ fi
 if [[ -f "$HOME/.zshenv" ]] ; then
     tmp_ZDOTDIR=$ZDOTDIR
     source "$HOME/.zshenv"
-    # If the user has overridden $ZDOTDIR, we save that in $_KUBIE_USER_ZDOTDIR for later reference
+    # If the user has overridden $ZDOTDIR, we save that in $_KON_USER_ZDOTDIR for later reference
     # and reset $ZDOTDIR
     if [[ "$tmp_ZDOTDIR" != "$ZDOTDIR" ]]; then
-        _KUBIE_USER_ZDOTDIR=$ZDOTDIR
+        _KON_USER_ZDOTDIR=$ZDOTDIR
         ZDOTDIR=$tmp_ZDOTDIR
         unset tmp_ZDOTDIR
     fi
@@ -36,19 +36,19 @@ if [[ -f "$HOME/.zsh_history" ]] ; then
     cp $HOME/.zsh_history $ZDOTDIR
 fi
 
-KUBIE_LOGIN_SHELL=0
+KON_LOGIN_SHELL=0
 if [[ "$OSTYPE" == "darwin"* ]] ; then
-    KUBIE_LOGIN_SHELL=1
+    KON_LOGIN_SHELL=1
 fi
 
-if [[ -f "/etc/zprofile" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+if [[ -f "/etc/zprofile" && "$KON_LOGIN_SHELL" == "1" ]] ; then
     source "/etc/zprofile"
-elif [[ -f "/etc/zsh/zprofile" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+elif [[ -f "/etc/zsh/zprofile" && "$KON_LOGIN_SHELL" == "1" ]] ; then
     source "/etc/zsh/zprofile"
 fi
 
-if [[ -f "${_KUBIE_USER_ZDOTDIR:-$HOME}/.zprofile" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
-    source "${_KUBIE_USER_ZDOTDIR:-$HOME}/.zprofile"
+if [[ -f "${_KON_USER_ZDOTDIR:-$HOME}/.zprofile" && "$KON_LOGIN_SHELL" == "1" ]] ; then
+    source "${_KON_USER_ZDOTDIR:-$HOME}/.zprofile"
 fi
 
 if [[ -f "/etc/zshrc" ]] ; then
@@ -57,29 +57,29 @@ elif [[ -f "/etc/zsh/zshrc" ]] ; then
     source "/etc/zsh/zshrc"
 fi
 
-if [[ -f "${_KUBIE_USER_ZDOTDIR:-$HOME}/.zshrc" ]] ; then
-    ZDOTDIR=$_KUBIE_USER_ZDOTDIR \
-        source "${_KUBIE_USER_ZDOTDIR:-$HOME}/.zshrc"
+if [[ -f "${_KON_USER_ZDOTDIR:-$HOME}/.zshrc" ]] ; then
+    ZDOTDIR=$_KON_USER_ZDOTDIR \
+        source "${_KON_USER_ZDOTDIR:-$HOME}/.zshrc"
 fi
 
-if [[ -f "/etc/zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+if [[ -f "/etc/zlogin" && "$KON_LOGIN_SHELL" == "1" ]] ; then
     source "/etc/zlogin"
-elif [[ -f "/etc/zsh/zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+elif [[ -f "/etc/zsh/zlogin" && "$KON_LOGIN_SHELL" == "1" ]] ; then
     source "/etc/zsh/zlogin"
 fi
 
-if [[ -f "${_KUBIE_USER_ZDOTDIR:-$HOME}/.zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
-    source "${_KUBIE_USER_ZDOTDIR:-$HOME}/.zlogin"
+if [[ -f "${_KON_USER_ZDOTDIR:-$HOME}/.zlogin" && "$KON_LOGIN_SHELL" == "1" ]] ; then
+    source "${_KON_USER_ZDOTDIR:-$HOME}/.zlogin"
 fi
 
-unset _KUBIE_USER_ZDOTDIR
+unset _KON_USER_ZDOTDIR
 
 autoload -Uz add-zsh-hook
 
 # This function sets the proper KUBECONFIG variable before a command runs,
 # in case something overwrote it.
 function __kubie_cmd_pre_exec__() {
-    export KUBECONFIG="$KUBIE_KUBECONFIG"
+    export KUBECONFIG="$KON_KUBECONFIG"
 }
 
 add-zsh-hook preexec __kubie_cmd_pre_exec__
@@ -92,25 +92,25 @@ setopt PROMPT_SUBST
 
 # This function fixes the prompt via a precmd hook.
 function __kubie_cmd_pre_cmd__() {
-    local KUBIE_PROMPT=$'%%PROMPT%%'
+    local KON_PROMPT=$'%%PROMPT%%'
 
-    # If KUBIE_ZSH_USE_RPS1 is set, we use RPS1 instead of PS1.
-    if [[ "$KUBIE_ZSH_USE_RPS1" == "1" ]] ; then
+    # If KON_ZSH_USE_RPS1 is set, we use RPS1 instead of PS1.
+    if [[ "$KON_ZSH_USE_RPS1" == "1" ]] ; then
 
         # Avoid modifying RPS1 again if the RPS1 has not been reset.
-        if [[ "$RPS1" != *"$KUBIE_PROMPT"* ]] ; then
+        if [[ "$RPS1" != *"$KON_PROMPT"* ]] ; then
 
             # If RPS1 is empty, we do not seperate with a space.
             if [[ -z "$RPS1" ]] ; then
-                RPS1="$KUBIE_PROMPT"
+                RPS1="$KON_PROMPT"
             else
-                RPS1="$KUBIE_PROMPT $RPS1"
+                RPS1="$KON_PROMPT $RPS1"
             fi
         fi
     else
         # Avoid modifying PS1 again if the PS1 has not been reset.
-        if [[ "$PS1" != *"$KUBIE_PROMPT"* ]] ; then
-            PS1="$KUBIE_PROMPT $PS1"
+        if [[ "$PS1" != *"$KON_PROMPT"* ]] ; then
+            PS1="$KON_PROMPT $PS1"
         fi
     fi
 }

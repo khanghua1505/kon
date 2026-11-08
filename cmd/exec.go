@@ -22,7 +22,7 @@ type execOptions struct {
 	contextHeaders string
 }
 
-// ExecExitError carries the exit code of a command run through kubie exec.
+// ExecExitError carries the exit code of a command run through kon exec.
 type ExecExitError struct {
 	Code int
 }
@@ -49,7 +49,7 @@ func newExecCmd() *cobra.Command {
 	}
 
 	cmd.Flags().BoolVarP(&opts.exitEarly, "exit-early", "e", false, "Exit early if a command fails when using a wildcard context.")
-	cmd.Flags().StringVar(&opts.contextHeaders, "context-headers", "", "Overrides behavior.print_context_in_exec in Kubie settings file.")
+	cmd.Flags().StringVar(&opts.contextHeaders, "context-headers", "", "Overrides behavior.print_context_in_exec in kon settings file.")
 	cmd.Flags().SetInterspersed(false)
 
 	return cmd
@@ -176,11 +176,12 @@ func runInContext(cmd *cobra.Command, config *kubeconfig.KubeConfig, command []s
 	child.Stdin = cmd.InOrStdin()
 	child.Stdout = cmd.OutOrStdout()
 	child.Stderr = cmd.ErrOrStderr()
+	depth := strconv.Itoa(vars.Depth() + 1)
 	child.Env = append(os.Environ(),
 		"KUBECONFIG="+path,
-		"KUBIE_KUBECONFIG="+path,
-		"KUBIE_ACTIVE=1",
-		"KUBIE_DEPTH="+strconv.Itoa(vars.Depth()+1),
+		"KON_KUBE_CONFIG="+path,
+		"KON_ACTIVE=1",
+		"KON_DEPTH="+depth,
 	)
 
 	if err := child.Start(); err != nil {
@@ -207,13 +208,13 @@ func runInContext(cmd *cobra.Command, config *kubeconfig.KubeConfig, command []s
 			select {
 			case sig := <-signals:
 				if err := child.Process.Signal(sig); err != nil {
-					fmt.Fprintf(os.Stderr, "kubie: failed to forward signal to child: %v\n", err)
+					fmt.Fprintf(os.Stderr, "kon: failed to forward signal to child: %v\n", err)
 				}
 
 				if terminatingSignal(sig) {
 					signal.Stop(signals)
 					if err := syscall.Kill(syscall.Getpid(), sig.(syscall.Signal)); err != nil {
-						fmt.Fprintf(os.Stderr, "kubie: failed to re-raise signal: %v\n", err)
+						fmt.Fprintf(os.Stderr, "kon: failed to re-raise signal: %v\n", err)
 					}
 					return
 				}

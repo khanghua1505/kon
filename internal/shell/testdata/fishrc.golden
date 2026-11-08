@@ -1,5 +1,16 @@
 === env ===
 KUBECONFIG=/tmp/kubie-test/kubeconfig
+KON_ACTIVE=1
+KON_DEPTH=4
+KON_KUBECONFIG=/tmp/kubie-test/kubeconfig
+KON_KUBE_CONFIG=/tmp/kubie-test/kubeconfig
+KON_SESSION=/tmp/kubie-test/session.json
+KON_STATE=/tmp/kubie-test/state.json
+KON_PROMPT_DISABLE=0
+KON_ZSH_USE_RPS1=0
+KON_FISH_USE_RPROMPT=0
+KON_XONSH_USE_RIGHT_PROMPT=0
+KON_SHELL=fish
 KUBIE_ACTIVE=1
 KUBIE_DEPTH=4
 KUBIE_KUBECONFIG=/tmp/kubie-test/kubeconfig
@@ -15,15 +26,15 @@ KUBIE_SHELL=fish
 # Set the proper KUBECONFIG variable before each command runs,
 # to prevent the user from overwriting it.
 function kubie_preexec --on-event fish_preexec
-    set -xg KUBECONFIG "$KUBIE_KUBECONFIG"
+    set -xg KUBECONFIG "$KON_KUBECONFIG"
 end
 
-if test "$KUBIE_PROMPT_DISABLE" = "0"
+if test "$KON_PROMPT_DISABLE" = "0"
     # The general idea behind the prompt substitions is to save the existing
     # prompt's output _before_ anything else is run. This is important since the
     # existing prompt might be dependent on say the status of the executed command.
 
-    if test "$KUBIE_FISH_USE_RPROMPT" = "1"
+    if test "$KON_FISH_USE_RPROMPT" = "1"
         functions -q fish_right_prompt
         and functions --copy fish_right_prompt fish_right_prompt_original
         or function fish_right_prompt_original; end

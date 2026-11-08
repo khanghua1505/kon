@@ -36,7 +36,7 @@ func newCtxCmd() *cobra.Command {
 		Use:   "ctx [NAME|-]",
 		Short: "Spawn a shell in the given context. The shell is isolated from other shells.",
 		Long: "Spawn a shell in the given context. The shell is isolated from other shells.\n" +
-			"Kubie shells can be spawned recursively without any issue.",
+			"Kon shells can be spawned recursively without any issue.",
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runCtx(cmd, opts, args)
@@ -103,7 +103,7 @@ func loadInstalledContexts(cfg *settings.Settings, kubeconfigs []string) (*kubec
 	installed := kubeconfig.LoadKubeconfigs(paths)
 	if len(installed.Contexts) == 0 {
 		if len(kubeconfigs) == 0 {
-			return nil, errors.New("Could not find any contexts in the Kubie kubeconfig directories!")
+			return nil, errors.New("Could not find any contexts in the Kon kubeconfig directories!")
 		}
 
 		return nil, errors.New("Could not find any contexts in the given set of files!")
@@ -124,7 +124,7 @@ func contextNames(installed *kubeconfig.Installed) []string {
 }
 
 // enterContext enters the given context, either by rewriting the kubeconfig of
-// the running kubie shell or by spawning a new shell.
+// the running kon shell or by spawning a new shell.
 func enterContext(cfg *settings.Settings, installed *kubeconfig.Installed, contextName, namespaceName string, recursive bool, stderr io.Writer) error {
 	if err := ensureStatePath(); err != nil {
 		return err
@@ -168,7 +168,7 @@ func enterContext(cfg *settings.Settings, installed *kubeconfig.Installed, conte
 	if vars.Active() && !recursive {
 		path, ok := vars.KubeconfigPath()
 		if !ok {
-			return errors.New("KUBIE_KUBECONFIG env variable missing")
+			return errors.New("KON_KUBECONFIG env variable missing")
 		}
 		if err := config.WriteToFile(path); err != nil {
 			return err
@@ -212,7 +212,7 @@ func namespaceOr(remembered *string, requested string) *string {
 // ensureStatePath points the state package at a usable state file.
 //
 // The environment wins, the platform data directory is the fallback used when
-// kubie runs outside of a kubie shell.
+// kon runs outside of a kon shell.
 func ensureStatePath() error {
 	path := os.Getenv(state.EnvState)
 	if path == "" {
@@ -220,7 +220,7 @@ func ensureStatePath() error {
 		if err != nil {
 			return err
 		}
-		path = filepath.Join(dir, "kubie", "state.json")
+		path = filepath.Join(dir, "kon", "state.json")
 	}
 
 	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {

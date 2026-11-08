@@ -44,7 +44,7 @@ func newNsCmd() *cobra.Command {
 	return cmd
 }
 
-// runNs changes the namespace of the running kubie shell.
+// runNs changes the namespace of the running kon shell.
 func runNs(cmd *cobra.Command, opts *nsOptions, args []string) error {
 	if err := vars.EnsureActive(); err != nil {
 		return err
@@ -222,7 +222,7 @@ func enterNamespace(cfg *settings.Settings, sess *session.Session, recursive boo
 
 	path, ok := vars.KubeconfigPath()
 	if !ok {
-		return errors.New("KUBIE_KUBECONFIG env variable missing")
+		return errors.New("KON_KUBECONFIG env variable missing")
 	}
 	if err := config.WriteToFile(path); err != nil {
 		return err

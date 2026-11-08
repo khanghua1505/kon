@@ -11,7 +11,7 @@ linters:
       - path: _test\.go
         linters:
           - errcheck
-      # ST1005: error strings mirror upstream kubie (Rust) user-visible text
+      # ST1005: error strings mirror upstream kon (Rust) user-visible text
       # verbatim; restyle would diverge from upstream behavior.
       - linters:
           - staticcheck

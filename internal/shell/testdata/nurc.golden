@@ -1,5 +1,16 @@
 === env ===
 KUBECONFIG=/tmp/kubie-test/kubeconfig
+KON_ACTIVE=1
+KON_DEPTH=4
+KON_KUBECONFIG=/tmp/kubie-test/kubeconfig
+KON_KUBE_CONFIG=/tmp/kubie-test/kubeconfig
+KON_SESSION=/tmp/kubie-test/session.json
+KON_STATE=/tmp/kubie-test/state.json
+KON_PROMPT_DISABLE=0
+KON_ZSH_USE_RPS1=0
+KON_FISH_USE_RPROMPT=0
+KON_XONSH_USE_RIGHT_PROMPT=0
+KON_SHELL=nu
 KUBIE_ACTIVE=1
 KUBIE_DEPTH=4
 KUBIE_KUBECONFIG=/tmp/kubie-test/kubeconfig
@@ -11,4 +22,4 @@ KUBIE_FISH_USE_RPROMPT=0
 KUBIE_XONSH_USE_RIGHT_PROMPT=0
 KUBIE_SHELL=nu
 === rc ===
-$env.KUBECONFIG = '/tmp/kubie-test/kubeconfig';$env.KUBIE_ACTIVE = '1';$env.KUBIE_DEPTH = '4';$env.KUBIE_KUBECONFIG = '/tmp/kubie-test/kubeconfig';$env.KUBIE_SESSION = '/tmp/kubie-test/session.json';$env.KUBIE_STATE = '/tmp/kubie-test/state.json';$env.KUBIE_PROMPT_DISABLE = '0';$env.PROMPT_COMMAND = { || $"[\e[31m(/usr/local/bin/kon info ctx)\e[0m|\e[32m(/usr/local/bin/kon info ns)\e[0m|\e[34m4\e[0m]\n(create_left_prompt)" };$env.KUBIE_ZSH_USE_RPS1 = '0';$env.KUBIE_FISH_USE_RPROMPT = '0';$env.KUBIE_XONSH_USE_RIGHT_PROMPT = '0';$env.KUBIE_SHELL = 'nu';
+$env.KUBECONFIG = '/tmp/kubie-test/kubeconfig';$env.KON_ACTIVE = '1';$env.KON_DEPTH = '4';$env.KON_KUBECONFIG = '/tmp/kubie-test/kubeconfig';$env.KON_KUBE_CONFIG = '/tmp/kubie-test/kubeconfig';$env.KON_SESSION = '/tmp/kubie-test/session.json';$env.KON_STATE = '/tmp/kubie-test/state.json';$env.KON_PROMPT_DISABLE = '0';$env.PROMPT_COMMAND = { || $"[\e[31m(/usr/local/bin/kon info ctx)\e[0m|\e[32m(/usr/local/bin/kon info ns)\e[0m|\e[34m4\e[0m]\n(create_left_prompt)" };$env.KON_ZSH_USE_RPS1 = '0';$env.KON_FISH_USE_RPROMPT = '0';$env.KON_XONSH_USE_RIGHT_PROMPT = '0';$env.KON_SHELL = 'nu';$env.KUBIE_ACTIVE = '1';$env.KUBIE_DEPTH = '4';$env.KUBIE_KUBECONFIG = '/tmp/kubie-test/kubeconfig';$env.KUBIE_SESSION = '/tmp/kubie-test/session.json';$env.KUBIE_STATE = '/tmp/kubie-test/state.json';$env.KUBIE_PROMPT_DISABLE = '0';$env.KUBIE_ZSH_USE_RPS1 = '0';$env.KUBIE_FISH_USE_RPROMPT = '0';$env.KUBIE_XONSH_USE_RIGHT_PROMPT = '0';$env.KUBIE_SHELL = 'nu';

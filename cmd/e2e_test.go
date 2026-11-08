@@ -36,11 +36,11 @@ func prepareE2EHome(t *testing.T) string {
 		t.Fatalf("write settings: %v", err)
 	}
 	t.Setenv("HOME", home)
-	t.Setenv("KUBIE_STATE", filepath.Join(home, "state.json"))
-	t.Setenv("KUBIE_ACTIVE", "")
-	t.Setenv("KUBIE_DEPTH", "0")
-	t.Setenv("KUBIE_SESSION", "")
-	t.Setenv("KUBIE_KUBECONFIG", "")
+	t.Setenv("KON_STATE", filepath.Join(home, "state.json"))
+	t.Setenv("KON_ACTIVE", "")
+	t.Setenv("KON_DEPTH", "0")
+	t.Setenv("KON_SESSION", "")
+	t.Setenv("KON_KUBECONFIG", "")
 	return home
 }
 
@@ -84,7 +84,7 @@ func TestE2EExportCtx(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	cmdE := exec.CommandContext(ctx, bin, "ctx", "-f", "testdata/e2e/kubeconfig/a.yaml", "ctx-a")
-	cmdE.Env = append(os.Environ(), "HOME="+home, "PATH="+filepath.Dir(bin)+":"+os.Getenv("PATH"), "SHELL=/bin/bash", "KUBIE_PROMPT_DISABLE=1", "KUBIE_DEPTH=0")
+	cmdE.Env = append(os.Environ(), "HOME="+home, "PATH="+filepath.Dir(bin)+":"+os.Getenv("PATH"), "SHELL=/bin/bash", "KON_PROMPT_DISABLE=1", "KON_DEPTH=0")
 	cmdE.Stdin = strings.NewReader(strings.Join([]string{
 		"kon info ctx",
 		"kon info ns",
@@ -176,10 +176,10 @@ func TestE2ECtxBackSwitch(t *testing.T) {
 	if err := os.WriteFile(activeConfig, fixture, 0o600); err != nil {
 		t.Fatalf("write active kubeconfig: %v", err)
 	}
-	t.Setenv("KUBIE_ACTIVE", "1")
-	t.Setenv("KUBIE_DEPTH", "1")
-	t.Setenv("KUBIE_SESSION", sessionPath)
-	t.Setenv("KUBIE_KUBECONFIG", activeConfig)
+	t.Setenv("KON_ACTIVE", "1")
+	t.Setenv("KON_DEPTH", "1")
+	t.Setenv("KON_SESSION", sessionPath)
+	t.Setenv("KON_KUBECONFIG", activeConfig)
 	t.Setenv("KUBECONFIG", activeConfig)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

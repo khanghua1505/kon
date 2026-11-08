@@ -130,7 +130,7 @@ func newEditCmd() *cobra.Command {
 func newEditConfigCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "edit-config",
-		Short: "Edit kubie's config file.",
+		Short: "Edit kon's config file.",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			config, err := settings.Load()

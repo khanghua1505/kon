@@ -1,5 +1,16 @@
 === env ===
 KUBECONFIG=/tmp/kubie-test/kubeconfig
+KON_ACTIVE=1
+KON_DEPTH=4
+KON_KUBECONFIG=/tmp/kubie-test/kubeconfig
+KON_KUBE_CONFIG=/tmp/kubie-test/kubeconfig
+KON_SESSION=/tmp/kubie-test/session.json
+KON_STATE=/tmp/kubie-test/state.json
+KON_PROMPT_DISABLE=0
+KON_ZSH_USE_RPS1=0
+KON_FISH_USE_RPROMPT=0
+KON_XONSH_USE_RIGHT_PROMPT=0
+KON_SHELL=xonsh
 KUBIE_ACTIVE=1
 KUBIE_DEPTH=4
 KUBIE_KUBECONFIG=/tmp/kubie-test/kubeconfig
@@ -29,21 +40,21 @@ if Path("~/.config/xonsh/rc.d").is_dir():
 
 @events.on_precommand
 def __kubie_cmd_pre_exec__(cmd):
-    $KUBECONFIG = $KUBIE_KUBECONFIG
+    $KUBECONFIG = $KON_KUBECONFIG
 
-$KUBIE_PROMPT='[\033[31m$(/usr/local/bin/kon info ctx)\033[0m|\033[32m$(/usr/local/bin/kon info ns)\033[0m|\033[34m4\033[0m]'
+$KON_PROMPT='[\033[31m$(/usr/local/bin/kon info ctx)\033[0m|\033[32m$(/usr/local/bin/kon info ns)\033[0m|\033[34m4\033[0m]'
 import re
 
 # Fanciful prompt-command replacement as xonsh forces the use of PROMPT_FIELDS
-for match in re.finditer(r'\$\(([^)]*)\)', $KUBIE_PROMPT):
+for match in re.finditer(r'\$\(([^)]*)\)', $KON_PROMPT):
     command = match.group(1)
     name = command.split().pop()
     $PROMPT_FIELDS[name] = evalx(f'lambda: $({command}).strip()')
-    $KUBIE_PROMPT = $KUBIE_PROMPT.replace(f'$({command})', '{' + name + '}')
+    $KON_PROMPT = $KON_PROMPT.replace(f'$({command})', '{' + name + '}')
 
-if $KUBIE_XONSH_USE_RIGHT_PROMPT == "1":
-    $RIGHT_PROMPT = $KUBIE_PROMPT + $RIGHT_PROMPT
+if $KON_XONSH_USE_RIGHT_PROMPT == "1":
+    $RIGHT_PROMPT = $KON_PROMPT + $RIGHT_PROMPT
 else:
-    $PROMPT = $KUBIE_PROMPT + $PROMPT
+    $PROMPT = $KON_PROMPT + $PROMPT
 
-del $KUBIE_PROMPT
+del $KON_PROMPT

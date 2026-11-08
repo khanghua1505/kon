@@ -88,7 +88,7 @@ func TestSpawnBashExportsEnvironmentAndPropagatesExitCode(t *testing.T) {
 
 	body := `#!/bin/sh
 {
-  for name in KUBECONFIG KUBIE_ACTIVE KUBIE_DEPTH KUBIE_KUBECONFIG KUBIE_SESSION KUBIE_STATE KUBIE_PROMPT_DISABLE KUBIE_ZSH_USE_RPS1 KUBIE_FISH_USE_RPROMPT KUBIE_XONSH_USE_RIGHT_PROMPT KUBIE_SHELL; do
+  for name in KUBECONFIG KON_ACTIVE KON_DEPTH KON_KUBECONFIG KON_SESSION KON_STATE KON_PROMPT_DISABLE KON_ZSH_USE_RPS1 KON_FISH_USE_RPROMPT KON_XONSH_USE_RIGHT_PROMPT KON_SHELL; do
     eval "value=\${$name-<unset>}"
     printf '%s=%s\n' "$name" "$value"
   done
@@ -146,24 +146,24 @@ exit 7
 	}
 
 	want := map[string]string{
-		"KUBECONFIG":                   configPath,
-		"KUBIE_ACTIVE":                 "1",
-		"KUBIE_DEPTH":                  "2",
-		"KUBIE_KUBECONFIG":             configPath,
-		"KUBIE_SESSION":                sessionPath,
-		"KUBIE_PROMPT_DISABLE":         "0",
-		"KUBIE_ZSH_USE_RPS1":           "0",
-		"KUBIE_FISH_USE_RPROMPT":       "0",
-		"KUBIE_XONSH_USE_RIGHT_PROMPT": "0",
-		"KUBIE_SHELL":                  "bash",
+		"KUBECONFIG":                 configPath,
+		"KON_ACTIVE":                 "1",
+		"KON_DEPTH":                  "2",
+		"KON_KUBECONFIG":             configPath,
+		"KON_SESSION":                sessionPath,
+		"KON_PROMPT_DISABLE":         "0",
+		"KON_ZSH_USE_RPS1":           "0",
+		"KON_FISH_USE_RPROMPT":       "0",
+		"KON_XONSH_USE_RIGHT_PROMPT": "0",
+		"KON_SHELL":                  "bash",
 	}
 	for name, wantValue := range want {
 		if got := values[name]; got != wantValue {
 			t.Fatalf("%s = %q, want %q", name, got, wantValue)
 		}
 	}
-	if values["KUBIE_STATE"] == "" || values["KUBIE_STATE"] == "<unset>" {
-		t.Fatalf("KUBIE_STATE = %q, want a path", values["KUBIE_STATE"])
+	if values["KON_STATE"] == "" || values["KON_STATE"] == "<unset>" {
+		t.Fatalf("KON_STATE = %q, want a path", values["KON_STATE"])
 	}
 	if !strings.Contains(args, "--rcfile") {
 		t.Fatalf("child args = %q, want an --rcfile argument", args)
@@ -237,7 +237,7 @@ func TestBashRCContent(t *testing.T) {
 	}
 
 	content := bashRCContent(info)
-	for _, want := range []string{`source "/etc/profile"`, `source "$HOME/.bash_profile"`, `trap '__kubie_cmd_pre_exec__' DEBUG`, `KUBIE_PROMPT='PROMPT'`} {
+	for _, want := range []string{`source "/etc/profile"`, `source "$HOME/.bash_profile"`, `trap '__kubie_cmd_pre_exec__' DEBUG`, `KON_PROMPT='PROMPT'`} {
 		if !strings.Contains(content, want) {
 			t.Fatalf("bash rc content misses %q", want)
 		}
