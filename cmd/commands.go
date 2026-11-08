@@ -17,5 +17,6 @@ func RegisterCommands(root *cobra.Command) {
 		newUpdateCmd(),
 		newGenerateCompletionCmd(),
 		newKubectlAliasCmd(),
+		newInstallCmd(),
 	)
 }
