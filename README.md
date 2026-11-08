@@ -36,7 +36,9 @@ go install github.com/khanghua1505/kon/cmd/kon@latest
 
 The easiest way is `kon install [SHELL]`, which writes the shell completion and the kubectl aliases (see
 `kon kubectl-alias` below) into your shell's configuration file, wrapped in `# >>> kon >>>` markers so re-running
-the command replaces the previous block instead of duplicating it. Supported shells: `bash`, `zsh`, `fish` and
+the command replaces the previous block instead of duplicating it. It also links `kubectl-kon` next to the kon
+binary, so every subcommand works as a kubectl plugin, e.g. `kubectl kon ctx`, and writes `kubectl-ctx` and
+`kubectl-ns` scripts so `kubectl ctx` and `kubectl ns` switch context and namespace directly. Supported shells: `bash`, `zsh`, `fish` and
 `nushell`; omit the argument to detect the shell from `$SHELL`. Nushell gets aliases only, generated once into
 `~/.config/kon/kubectl-aliases.nu`, since there is no completion script generator for it.
 
@@ -85,7 +87,9 @@ a terminal, show a terminal list prompt, then print a numbered list for non-inte
 * `kon info ctx` print name of current context
 * `kon info ns` print name of current namespace
 * `kon info depth` print depth of recursive contexts
-* `kon install [shell]` install shell completion and kubectl aliases into the shell's configuration file
+* `kon install [shell]` install shell completion, kubectl aliases and the kubectl-kon plugin
+* `kubectl kon <cmd>` run any kon command as a kubectl plugin, e.g. `kubectl kon ctx` (after `kon install`)
+* `kubectl ctx` / `kubectl ns` pick context or namespace with the kon TUI (after `kon install`)
 * `kon kubectl-alias [shell]` print kubectl aliases for `bash`, `zsh`, `fish` or `nushell` (default: detected shell)
 * `kon lint` lint k8s config files for issues
 * `kon update` check for a new release and update the local installation

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -19,10 +20,14 @@ const (
 func newInstallCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:       "install [SHELL]",
-		Short:     "Install completion and kubectl aliases into shell configuration.",
+		Short:     "Install completion, kubectl aliases and the kubectl-kon plugin.",
 		Args:      cobra.MaximumNArgs(1),
 		ValidArgs: []string{"bash", "zsh", "fish", "nushell"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := installKubectlPlugin(cmd); err != nil {
+				return err
+			}
+
 			shell := ""
 			if len(args) == 1 {
 				shell = args[0]
@@ -168,4 +173,48 @@ func stripRcBlock(content string) string {
 		}
 	}
 	return strings.Join(kept, "\n")
+}
+
+// installKubectlPlugin links kubectl-kon next to the kon binary so kubectl
+// runs kon as a plugin, e.g. kubectl kon ctx.
+func installKubectlPlugin(cmd *cobra.Command) error {
+	binPath, err := os.Executable()
+	if err != nil {
+		return err
+	}
+
+	scripts, err := ensurePluginScripts(binPath)
+	if err != nil {
+		return fmt.Errorf("could not install kubectl plugins: %w", err)
+	}
+
+	fmt.Fprintf(cmd.OutOrStdout(), "Installed kubectl plugins %s (use: kubectl ctx, kubectl ns)\n", strings.Join(scripts, ", ")) //nolint:errcheck
+	return nil
+}
+
+// ensurePluginScripts writes the kubectl-ctx and kubectl-ns plugin scripts
+// next to the kon binary, delegating to kon ctx and kon ns.
+func ensurePluginScripts(binPath string) ([]string, error) {
+	if resolved, err := filepath.EvalSymlinks(binPath); err == nil {
+		binPath = resolved
+	}
+
+	plugins := map[string]string{
+		"kubectl-on":  "",
+		"kubectl-ctx": "ctx",
+		"kubectl-ns":  "ns",
+	}
+
+	var paths []string
+	for name, sub := range plugins {
+		path := filepath.Join(filepath.Dir(binPath), name)
+		content := fmt.Sprintf("#!/bin/sh\nexec \"$(dirname \"$0\")/kon\" %s \"$@\"\n", sub)
+		if err := os.WriteFile(path, []byte(content), 0o755); err != nil {
+			return nil, err
+		}
+		paths = append(paths, path)
+	}
+	sort.Strings(paths)
+
+	return paths, nil
 }
