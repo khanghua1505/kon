@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/khanghua1505/kubie/internal/settings"
+	"github.com/khanghua1505/kon/internal/settings"
 )
 
 // The colors used by the kubie prompt.

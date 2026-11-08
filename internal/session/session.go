@@ -11,8 +11,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/khanghua1505/kubie/internal/state"
-	"github.com/khanghua1505/kubie/internal/vars"
+	"github.com/khanghua1505/kon/internal/state"
+	"github.com/khanghua1505/kon/internal/vars"
 )
 
 // HistoryEntry is a single visited context with its optional namespace.

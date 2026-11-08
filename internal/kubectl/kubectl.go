@@ -9,8 +9,8 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/khanghua1505/kubie/internal/kubeconfig"
-	"github.com/khanghua1505/kubie/internal/vars"
+	"github.com/khanghua1505/kon/internal/kubeconfig"
+	"github.com/khanghua1505/kon/internal/vars"
 )
 
 // Options controls one kubectl invocation.

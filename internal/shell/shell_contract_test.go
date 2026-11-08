@@ -9,9 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/khanghua1505/kubie/internal/settings"
-	"github.com/khanghua1505/kubie/internal/state"
-	"github.com/khanghua1505/kubie/internal/vars"
+	"github.com/khanghua1505/kon/internal/settings"
+	"github.com/khanghua1505/kon/internal/state"
+	"github.com/khanghua1505/kon/internal/vars"
 )
 
 var updateGolden = flag.Bool("update", false, "rewrite the golden files in testdata")

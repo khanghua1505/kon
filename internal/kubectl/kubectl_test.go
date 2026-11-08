@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/khanghua1505/kubie/internal/kubeconfig"
+	"github.com/khanghua1505/kon/internal/kubeconfig"
 )
 
 const namespaceTable = "NAME              STATUS   AGE\n" +

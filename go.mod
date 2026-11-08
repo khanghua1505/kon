@@ -1,4 +1,4 @@
-module github.com/khanghua1505/kubie
+module github.com/khanghua1505/kon
 
 go 1.23.0
 

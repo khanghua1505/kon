@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/khanghua1505/kubie/internal/settings"
+	"github.com/khanghua1505/kon/internal/settings"
 )
 
 // fakeFzf installs an fzf shim in dir and returns the file that receives the

@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/khanghua1505/kubie/internal/session"
-	"github.com/khanghua1505/kubie/internal/vars"
+	"github.com/khanghua1505/kon/internal/session"
+	"github.com/khanghua1505/kon/internal/vars"
 )
 
 func namespace(value string) *string {

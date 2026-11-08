@@ -11,8 +11,8 @@ import (
 	"os"
 	"slices"
 
-	"github.com/khanghua1505/kubie/internal/settings"
-	"github.com/khanghua1505/kubie/internal/tty"
+	"github.com/khanghua1505/kon/internal/settings"
+	"github.com/khanghua1505/kon/internal/tty"
 )
 
 // Result reports how a selection ended.

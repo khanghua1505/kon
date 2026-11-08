@@ -10,7 +10,7 @@ binary itself.
 ## Install
 
 ```sh
-go install github.com/khanghua1505/kubie/cmd/kon@latest
+go install github.com/khanghua1505/kon/cmd/kon@latest
 ```
 
 The binary lands in `$GOBIN` (default `$(go env GOPATH)/bin`).

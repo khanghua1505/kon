@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/khanghua1505/kubie/internal/settings"
+	"github.com/khanghua1505/kon/internal/settings"
 )
 
 // fzfArgs maps the fzf display settings onto fzf command line flags.

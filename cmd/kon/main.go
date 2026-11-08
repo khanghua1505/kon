@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/khanghua1505/kubie/cmd"
+	"github.com/khanghua1505/kon/cmd"
 )
 
 type exitCoder interface {

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/khanghua1505/kubie/internal/settings"
+	"github.com/khanghua1505/kon/internal/settings"
 )
 
 // writeFake installs an executable script in dir.

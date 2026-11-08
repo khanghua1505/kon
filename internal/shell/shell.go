@@ -16,11 +16,11 @@ import (
 	"runtime"
 	"strconv"
 
-	"github.com/khanghua1505/kubie/internal/kubeconfig"
-	"github.com/khanghua1505/kubie/internal/session"
-	"github.com/khanghua1505/kubie/internal/settings"
-	"github.com/khanghua1505/kubie/internal/state"
-	"github.com/khanghua1505/kubie/internal/vars"
+	"github.com/khanghua1505/kon/internal/kubeconfig"
+	"github.com/khanghua1505/kon/internal/session"
+	"github.com/khanghua1505/kon/internal/settings"
+	"github.com/khanghua1505/kon/internal/state"
+	"github.com/khanghua1505/kon/internal/vars"
 )
 
 // Kind is a shell kubie can spawn.

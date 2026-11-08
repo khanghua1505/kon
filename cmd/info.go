@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/khanghua1505/kubie/internal/kubeconfig"
-	"github.com/khanghua1505/kubie/internal/vars"
+	"github.com/khanghua1505/kon/internal/kubeconfig"
+	"github.com/khanghua1505/kon/internal/vars"
 )
 
 // newInfoCmd builds the info command and its subcommands.

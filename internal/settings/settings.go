@@ -10,7 +10,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/khanghua1505/kubie/internal/tty"
+	"github.com/khanghua1505/kon/internal/tty"
 )
 
 const configFileName = "kubie.yaml"

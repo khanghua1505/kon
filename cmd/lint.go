@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/khanghua1505/kubie/internal/kubeconfig"
-	"github.com/khanghua1505/kubie/internal/settings"
+	"github.com/khanghua1505/kon/internal/kubeconfig"
+	"github.com/khanghua1505/kon/internal/settings"
 )
 
 func newLintCmd() *cobra.Command {

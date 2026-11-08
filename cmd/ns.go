@@ -9,14 +9,14 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/khanghua1505/kubie/internal/kubectl"
-	"github.com/khanghua1505/kubie/internal/picker"
-	"github.com/khanghua1505/kubie/internal/session"
-	"github.com/khanghua1505/kubie/internal/settings"
-	"github.com/khanghua1505/kubie/internal/shell"
-	"github.com/khanghua1505/kubie/internal/state"
-	"github.com/khanghua1505/kubie/internal/tty"
-	"github.com/khanghua1505/kubie/internal/vars"
+	"github.com/khanghua1505/kon/internal/kubectl"
+	"github.com/khanghua1505/kon/internal/picker"
+	"github.com/khanghua1505/kon/internal/session"
+	"github.com/khanghua1505/kon/internal/settings"
+	"github.com/khanghua1505/kon/internal/shell"
+	"github.com/khanghua1505/kon/internal/state"
+	"github.com/khanghua1505/kon/internal/tty"
+	"github.com/khanghua1505/kon/internal/vars"
 )
 
 // nsOptions holds the flags of the ns command.

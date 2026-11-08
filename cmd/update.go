@@ -13,10 +13,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const releaseIssueURL = "https://github.com/khanghua1505/kubie/issues"
+const releaseIssueURL = "https://github.com/khanghua1505/kon/issues"
 
 // latestReleaseURL is a variable so tests can point it at a stub server.
-var latestReleaseURL = "https://api.github.com/repos/khanghua1505/kubie/releases/latest"
+var latestReleaseURL = "https://api.github.com/repos/khanghua1505/kon/releases/latest"
 
 type releaseAsset struct {
 	Name               string `json:"name"`

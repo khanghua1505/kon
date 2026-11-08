@@ -8,7 +8,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/khanghua1505/kubie/internal/state"
+	"github.com/khanghua1505/kon/internal/state"
 )
 
 func pointer(value string) *string {

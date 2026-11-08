@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/khanghua1505/kubie/internal/vars"
+	"github.com/khanghua1505/kon/internal/vars"
 )
 
 func unsetEnv(t *testing.T, key string) {
