@@ -1,8 +1,8 @@
 // Package picker lets the user choose one item out of a list.
 //
-// It mirrors Rust kon's select_or_list_* helpers: fzf is used when it is
-// installed and stdout is a terminal, otherwise the items are printed so
-// that scripts can consume them.
+// It mirrors Rust kon's select_or_list_* helpers: the numbered terminal prompt
+// is used when stdout is a terminal, otherwise the items are printed so that
+// scripts can consume them.
 package picker
 
 import (
@@ -11,7 +11,6 @@ import (
 	"os"
 	"slices"
 
-	"github.com/khanghua1505/kon/internal/settings"
 	"github.com/khanghua1505/kon/internal/tty"
 )
 
@@ -31,11 +30,9 @@ const (
 type Mode int
 
 const (
-	// ModeAuto uses fzf when it is installed and stdout is a terminal, and
-	// falls back to the numbered terminal prompt otherwise.
+	// ModeAuto uses the numbered terminal prompt when stdout is a terminal
+	// and prints the items otherwise.
 	ModeAuto Mode = iota
-	// ModeFzf uses fzf when it is installed.
-	ModeFzf
 	// ModeTerminal always uses the numbered terminal prompt.
 	ModeTerminal
 	// ModeTui uses the full-screen bubbletea picker when both streams are
@@ -47,8 +44,6 @@ const (
 type Options struct {
 	// Mode selects the picker implementation.
 	Mode Mode
-	// Fzf holds the display options that are passed to fzf.
-	Fzf settings.Fzf
 	// In is the stream the terminal prompt reads the choice from.
 	In io.Reader
 	// Out is the stream the item list and the prompt are written to.
@@ -57,13 +52,8 @@ type Options struct {
 
 // Select presents items and reports the outcome. It is the Go counterpart of
 // Rust kon's select_or_list_* helpers.
-func Select(items []string, fzf *settings.Fzf) (Result, string, error) {
-	opts := Options{}
-	if fzf != nil {
-		opts.Fzf = *fzf
-	}
-
-	return SelectWithOptions(items, opts)
+func Select(items []string) (Result, string, error) {
+	return SelectWithOptions(items, Options{})
 }
 
 // SelectWithOptions presents items and reports the outcome.
@@ -90,8 +80,6 @@ func SelectWithOptions(items []string, opts Options) (Result, string, error) {
 		return promptList(menu, opts)
 	case opts.Mode == ModeTui && attachedToTerminal(opts):
 		return runTui(menu, opts)
-	case fzfAvailable() && (opts.Mode == ModeFzf || isTerminal(opts.Out)):
-		return runFzf(menu, opts)
 	case isTerminal(opts.Out):
 		return promptList(menu, opts)
 	default:
