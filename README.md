@@ -10,7 +10,8 @@ Kubernetes contexts from multiple files. You can configure the paths where kon w
 
 kon also has other nice features such as `kon exec` which allows you to execute commands in a context and a namespace
 without having to spawn a shell, `kon lint` which scans your k8s config files for issues and informs you of what they
-are, and a built-in TUI picker that removes kubie's external fuzzy-finder dependency.
+are, a built-in TUI picker that removes kubie's external fuzzy-finder dependency, and `kon kubectl-alias` which
+generates a set of kubectl aliases in the style of [github.com/ahmetb/kubectl-aliases](https://github.com/ahmetb/kubectl-aliases).
 
 - [kon](#kon)
   - [Installation](#installation)
@@ -33,7 +34,13 @@ go install github.com/khanghua1505/kon/cmd/kon@latest
 
 ### Autocompletion
 
-Autocompletion can be enabled by adding one of the following lines to your shell's configuration file, e.g. `~/.bashrc`
+The easiest way is `kon install [SHELL]`, which writes the shell completion and the kubectl aliases (see
+`kon kubectl-alias` below) into your shell's configuration file, wrapped in `# >>> kon >>>` markers so re-running
+the command replaces the previous block instead of duplicating it. Supported shells: `bash`, `zsh`, `fish` and
+`nushell`; omit the argument to detect the shell from `$SHELL`. Nushell gets aliases only, generated once into
+`~/.config/kon/kubectl-aliases.nu`, since there is no completion script generator for it.
+
+Alternatively, add one of the following lines to your shell's configuration file, e.g. `~/.bashrc`
 or `~/.zshrc`:
 
 ```sh
@@ -78,6 +85,8 @@ a terminal, show a terminal list prompt, then print a numbered list for non-inte
 * `kon info ctx` print name of current context
 * `kon info ns` print name of current namespace
 * `kon info depth` print depth of recursive contexts
+* `kon install [shell]` install shell completion and kubectl aliases into the shell's configuration file
+* `kon kubectl-alias [shell]` print kubectl aliases for `bash`, `zsh`, `fish` or `nushell` (default: detected shell)
 * `kon lint` lint k8s config files for issues
 * `kon update` check for a new release and update the local installation
 
