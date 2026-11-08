@@ -64,7 +64,7 @@ kon generate-completion fish | source
 kon reads its own settings from `~/.kube/kon.yaml`. If that file does not
 exist but `~/.kube/kubie.yaml` does, the kubie file is used instead, so
 existing setups keep working. The file uses the same keys as upstream kubie
-(`shell`, `default_editor`, `configs`, `prompt`, `behavior`, `hooks`, `fzf`).
+(`shell`, `default_editor`, `tui`, `configs`, `prompt`, `behavior`, `hooks`, `fzf`).
 
 
 ```yaml
@@ -77,6 +77,11 @@ shell: bash
 # Possible values: Any installed text editor
 # Default: unset
 default_editor: vim
+
+# Spawn contexts through a full-screen terminal picker (opencode style)
+# instead of fzf. Applies to `kon ctx` without an argument.
+# Default: false
+tui: false
 
 # Configure where to look for kubernetes config files.
 configs:

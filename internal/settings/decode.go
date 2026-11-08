@@ -29,6 +29,7 @@ func (s *Settings) UnmarshalYAML(value *yaml.Node) error {
 	type raw struct {
 		Shell         *string   `yaml:"shell"`
 		DefaultEditor *string   `yaml:"default_editor"`
+		Tui           *bool     `yaml:"tui"`
 		Configs       *Configs  `yaml:"configs"`
 		Prompt        *Prompt   `yaml:"prompt"`
 		Behavior      *Behavior `yaml:"behavior"`
@@ -53,6 +54,10 @@ func (s *Settings) UnmarshalYAML(value *yaml.Node) error {
 
 	if parsed.DefaultEditor != nil {
 		s.DefaultEditor = parsed.DefaultEditor
+	}
+
+	if parsed.Tui != nil {
+		s.Tui = *parsed.Tui
 	}
 
 	if parsed.Configs != nil {

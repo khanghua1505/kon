@@ -21,6 +21,7 @@ const legacyConfigFileName = "kubie.yaml"
 type Settings struct {
 	Shell         *string
 	DefaultEditor *string
+	Tui           bool
 	Configs       Configs
 	Prompt        Prompt
 	Behavior      Behavior

@@ -25,6 +25,10 @@ func TestDefaultMatchesUpstream(t *testing.T) {
 		t.Error("prompt boolean defaults must all be false except show_depth")
 	}
 
+	if s.Tui {
+		t.Error("tui default must be false")
+	}
+
 	if len(s.Configs.Include) != 7 {
 		t.Fatalf("configs.include default must hold 7 globs, got %d: %v", len(s.Configs.Include), s.Configs.Include)
 	}
@@ -146,6 +150,7 @@ func TestLoadAppliesOverridesAndExcludesSelf(t *testing.T) {
 	config := "" +
 		"shell: bash\n" +
 		"default_editor: nano\n" +
+		"tui: true\n" +
 		"prompt:\n" +
 		"  disable: true\n" +
 		"  show_depth: false\n" +
@@ -185,6 +190,10 @@ func TestLoadAppliesOverridesAndExcludesSelf(t *testing.T) {
 
 	if !s.Prompt.Disable || s.Prompt.ShowDepth || !s.Prompt.ZshUseRPS1 {
 		t.Errorf("prompt overrides not applied: %+v", s.Prompt)
+	}
+
+	if !s.Tui {
+		t.Error("tui = false, want true")
 	}
 
 	if s.Behavior.ValidateNamespaces != ValidateNamespacesPartial {

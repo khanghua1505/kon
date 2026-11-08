@@ -38,6 +38,9 @@ const (
 	ModeFzf
 	// ModeTerminal always uses the numbered terminal prompt.
 	ModeTerminal
+	// ModeTui uses the full-screen bubbletea picker when both streams are
+	// terminals, and falls back to the automatic behavior otherwise.
+	ModeTui
 )
 
 // Options tunes SelectWithOptions.
@@ -85,6 +88,8 @@ func SelectWithOptions(items []string, opts Options) (Result, string, error) {
 	switch {
 	case opts.Mode == ModeTerminal:
 		return promptList(menu, opts)
+	case opts.Mode == ModeTui && attachedToTerminal(opts):
+		return runTui(menu, opts)
 	case fzfAvailable() && (opts.Mode == ModeFzf || isTerminal(opts.Out)):
 		return runFzf(menu, opts)
 	case isTerminal(opts.Out):
@@ -92,6 +97,14 @@ func SelectWithOptions(items []string, opts Options) (Result, string, error) {
 	default:
 		return listItems(sorted, opts)
 	}
+}
+
+// attachedToTerminal reports whether both picker streams are terminals.
+func attachedToTerminal(opts Options) bool {
+	in, okIn := opts.In.(*os.File)
+	out, okOut := opts.Out.(*os.File)
+
+	return okIn && okOut && tty.IsTerminal(in) && tty.IsTerminal(out)
 }
 
 // listItems prints the items one per line so that scripts can consume them.
