@@ -3,22 +3,25 @@
 <img src="assets/kon-icon.png" alt="Kon (BLEACH)" title="Kon from BLEACH" align="right" width="240"/>
 
 `kon` is a Go port of [kubie](https://github.com/kubie-org/kubie), an alternative to `kubectx`, `kubens` and the
-`k on` prompt modification script. It offers context switching, namespace switching and prompt modification in a way
-that makes each shell independent from others. It also has support for split configuration files, meaning it can load
-Kubernetes contexts from multiple files. You can configure the paths where kon will look for contexts, see the
-[settings](#settings) section.
+`k on` prompt modification script.
 
-kon also has other nice features such as `kon exec` which allows you to execute commands in a context and a namespace
-without having to spawn a shell, `kon lint` which scans your k8s config files for issues and informs you of what they
-are, a built-in TUI picker that removes kubie's external fuzzy-finder dependency, and `kon kubectl-alias` which
-generates a set of kubectl aliases in the style of [github.com/ahmetb/kubectl-aliases](https://github.com/ahmetb/kubectl-aliases).
+- [Features](#features)
+- [Installation](#installation)
+  - [Go](#go)
+  - [Autocompletion](#autocompletion)
+- [Usage](#usage)
+- [Settings](#settings)
 
-- [kon](#kon)
-  - [Installation](#installation)
-    - [Go](#go)
-    - [Autocompletion](#autocompletion)
-  - [Usage](#usage)
-  - [Settings](#settings)
+
+## Features
+
+- 🐚 **Independent shells** — switch context, namespace and modify the prompt per shell; each shell is isolated from the others and recursion is safe
+- 📁 **Split configuration files** — load Kubernetes contexts from multiple files; the paths are configurable, see the [settings](#settings) section
+- ⚡ **`kon exec`** — execute commands in a context and namespace without spawning a shell
+- 🔍 **`kon lint`** — scan k8s config files and report the issues it finds
+- 🎯 **Built-in TUI picker** — no external fuzzy-finder dependency, unlike kubie
+- ⌨️ **`kon kubectl-alias`** — generate kubectl aliases in the style of [github.com/ahmetb/kubectl-aliases](https://github.com/ahmetb/kubectl-aliases)
+- 🔌 **kubectl plugins** — after `kon install`, every subcommand also runs as `kubectl kon <cmd>`, and `kubectl ctx` / `kubectl ns` pick context and namespace with the kon
 
 ## Installation
 
@@ -35,27 +38,15 @@ go install github.com/khanghua1505/kon/cmd/kon@latest
 ### Autocompletion
 
 The easiest way is `kon install [SHELL]`, which writes the shell completion and the kubectl aliases (see
-`kon kubectl-alias` below) into your shell's configuration file, wrapped in `# >>> kon >>>` markers so re-running
-the command replaces the previous block instead of duplicating it. Supported shells: `bash`, `zsh`, `fish` and
-`nushell`; omit the argument to detect the shell from `$SHELL`. Nushell gets aliases only, generated once into
-`~/.config/kon/kubectl-aliases.nu`, since there is no completion script generator for it.
-
-Alternatively, add one of the following lines to your shell's configuration file, e.g. `~/.bashrc`
-or `~/.zshrc`:
-
-```sh
-# Bash / Zsh / others
-source <(kon generate-completion)
-# Fish
-kon generate-completion fish | source
-```
+`kon kubectl-alias` below) into your shell's configuration file. It also links `kubectl-on` next to the kon
+binary, so every subcommand works as a kubectl plugin, and writes `kubectl-ctx` and `kubectl-ns`, 
+so `kubectl ctx` and `kubectl ns` switch context and namespace directly. Supported shells: `bash`, `zsh`, `fish` and
+`nushell`; omit the argument to detect the shell from `$SHELL`.
 
 ## Usage
 
 Selectable menus are available when using `kon ctx` and `kon ns`. They use the built-in TUI picker powered by
-Bubble Tea, enabled by default. Picker fallback order is: select a single item directly, open the TUI when enabled on
-a terminal, show a terminal list prompt, then print a numbered list for non-interactive output. Set
-`tui.enabled: false` (or scalar `tui: false`) to skip the TUI and use the terminal list.
+Bubble Tea, enabled by default.
 
 ---
 
@@ -85,7 +76,9 @@ a terminal, show a terminal list prompt, then print a numbered list for non-inte
 * `kon info ctx` print name of current context
 * `kon info ns` print name of current namespace
 * `kon info depth` print depth of recursive contexts
-* `kon install [shell]` install shell completion and kubectl aliases into the shell's configuration file
+* `kon install [shell]` install shell completion, kubectl aliases and the kubectl-kon plugin
+* `kubectl kon <cmd>` run any kon command as a kubectl plugin, e.g. `kubectl kon ctx` (after `kon install`)
+* `kubectl ctx` / `kubectl ns` pick context or namespace with the kon TUI (after `kon install`)
 * `kon kubectl-alias [shell]` print kubectl aliases for `bash`, `zsh`, `fish` or `nushell` (default: detected shell)
 * `kon lint` lint k8s config files for issues
 * `kon update` check for a new release and update the local installation
@@ -107,20 +100,6 @@ shell: bash
 # Possible values: Any installed text editor
 # Default: unset
 default_editor: vim
-
-# Configure the built-in TUI picker. Scalar `tui: true` and `tui: false` are
-# also accepted. Set `enabled: false` to fall back to the terminal list.
-# Colors accept 16 ANSI names (black, red, green, yellow, blue, magenta,
-# cyan, white, brightblack, brightred, brightgreen, brightyellow, brightblue,
-# brightmagenta, brightcyan, brightwhite), a decimal ANSI index such as 212,
-# or a hex value such as "#ff5f87".
-# Invalid colors fall back to 212 (selected) and 238 (border) without error.
-# Legacy picker keys are ignored silently.
-# Default: enabled
-tui:
-    enabled: true
-    selected_color: magenta
-    border_color: "#ff5f87"
 
 # Configure where to look for kubernetes config files.
 configs:

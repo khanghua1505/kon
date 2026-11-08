@@ -6,7 +6,7 @@ import (
 )
 
 // Version is the kon release version.
-const Version = "v0.29.2"
+const Version = "v0.29.3"
 
 // NewRootCmd builds kon's root command.
 func NewRootCmd() *cobra.Command {
