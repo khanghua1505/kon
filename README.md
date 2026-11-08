@@ -12,12 +12,12 @@ kon also has other nice features such as `kon exec` which allows you to execute 
 without having to spawn a shell, `kon lint` which scans your k8s config files for issues and informs you of what they
 are, and a built-in TUI picker that removes kubie's external fuzzy-finder dependency.
 
-* [Installation](#installation)
-* [Usage](#usage)
-* [Settings](#settings)
-* [Environment variables](#environment-variables)
-* [Divergences from upstream](#divergences-from-upstream)
-* [Attribution](#attribution)
+- [kon](#kon)
+  - [Installation](#installation)
+    - [Go](#go)
+    - [Autocompletion](#autocompletion)
+  - [Usage](#usage)
+  - [Settings](#settings)
 
 ## Installation
 
@@ -199,27 +199,3 @@ hooks:
         echo -en "\033]1; $SHELL \007"
 ```
 
-## Environment variables
-
-Inside a kon shell, `KON_*` variables describe the active shell: `KON_ACTIVE`, `KON_DEPTH`, `KON_KUBECONFIG` (also
-written as `KON_KUBE_CONFIG`), `KON_SESSION`, `KON_STATE`, plus per-shell prompt flags. Commands read `KON_*` first
-and fall back to the legacy `KUBIE_*` variables, so shells spawned by the original kubie keep working. kon-spawned
-shells export both families with the same values, which keeps kubie-era prompt scripts and `KUBIE_*`-aware tooling
-functional.
-
-## Divergences from upstream
-
-Intentional/known behavioral differences vs kubie-org/kubie (Rust):
-
-- **State file location.** Upstream fixes the state path at the platform data dir (`kubie/state.json`). This port honors `$KON_STATE` when set and falls back to the same platform data dir otherwise. (`$KUBIE_STATE` is read as a legacy fallback.)
-- **`ctx -n ""`.** Upstream treats an explicit empty namespace as an override. Here an empty `-n` value means "not requested" and falls back to the remembered namespace.
-- **`KON_KUBECONFIG` error text.** Upstream: `KON_KUBECONFIG variable not set`. Here: `KON_KUBECONFIG env variable missing`.
-- **Namespace-list parsing.** Upstream splits `kubectl` output lines on the first space only; here on the first space or tab. Equivalent for real `kubectl` output.
-- **State writes.** Upstream writes the state file in place; here a temp file is written next to it and renamed, so readers never see a partial file. The state directory is also pre-checked and a non-directory path reported explicitly.
-- **Picker.** Upstream shells out to an external fuzzy finder (skim) for interactive menus. kon ships a built-in Bubble Tea TUI picker enabled by default; no external tool is used.
-
-## Attribution
-
-Derived from kubie by Simon Bernier St-Pierre (github.com/kubie-org/kubie), Zlib license.
-
-Icon: [Kon from BLEACH](https://www.zerochan.net/1115386).
