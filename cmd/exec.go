@@ -40,9 +40,9 @@ func newExecCmd() *cobra.Command {
 	opts := &execOptions{}
 
 	cmd := &cobra.Command{
-		Use:   "exec CONTEXT NAMESPACE -- COMMAND [ARGS...]",
-		Short: "Execute a command inside of the given context and namespace.",
-		Args:  cobra.MinimumNArgs(2),
+		Use:   "exec [CONTEXT] [NAMESPACE] -- COMMAND [ARGS...]",
+		Short: "Execute a command inside of the given context and namespace, defaulting to the current ones.",
+		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runExec(cmd, opts, args)
 		},
@@ -56,13 +56,9 @@ func newExecCmd() *cobra.Command {
 }
 
 func runExec(cmd *cobra.Command, opts *execOptions, args []string) error {
-	head, command := splitExecArgs(args)
-	if len(head) < 2 {
-		return fmt.Errorf("exec requires a context and a namespace")
-	}
-
+	head, command := splitExecArgs(cmd, args)
 	if len(command) == 0 {
-		return nil
+		return fmt.Errorf("exec requires a command")
 	}
 
 	config, err := settings.Load()
@@ -75,9 +71,26 @@ func runExec(cmd *cobra.Command, opts *execOptions, args []string) error {
 		return err
 	}
 
-	matching := installed.GetContextsMatching(head[0], config.Behavior.AllowMultipleContextPatterns)
+	contextName := ""
+	if len(head) > 0 {
+		contextName = head[0]
+	} else {
+		contextName, err = currentContextName()
+		if err != nil {
+			return err
+		}
+	}
+
+	var namespace *string
+	if len(head) > 1 {
+		namespace = &head[1]
+	} else if current, ok := currentNamespace(); ok {
+		namespace = &current
+	}
+
+	matching := installed.GetContextsMatching(contextName, config.Behavior.AllowMultipleContextPatterns)
 	if len(matching) == 0 {
-		return fmt.Errorf("No context matching %s", head[0])
+		return fmt.Errorf("No context matching %s", contextName)
 	}
 
 	printContext, err := shouldPrintContextHeaders(config, opts.contextHeaders)
@@ -85,7 +98,6 @@ func runExec(cmd *cobra.Command, opts *execOptions, args []string) error {
 		return err
 	}
 
-	namespace := head[1]
 	failed := 0
 
 	for _, context := range matching {
@@ -93,7 +105,7 @@ func runExec(cmd *cobra.Command, opts *execOptions, args []string) error {
 			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "CONTEXT => %s\n", context.Item.Name)
 		}
 
-		isolated, err := installed.MakeKubeconfigForContext(context.Item.Name, &namespace)
+		isolated, err := installed.MakeKubeconfigForContext(context.Item.Name, namespace)
 		if err != nil {
 			return err
 		}
@@ -125,7 +137,15 @@ func runExec(cmd *cobra.Command, opts *execOptions, args []string) error {
 	return nil
 }
 
-func splitExecArgs(args []string) ([]string, []string) {
+// splitExecArgs splits the arguments of exec into the optional context and
+// namespace arguments and the command. When the command is introduced by --,
+// everything before it belongs to the optional arguments; otherwise the
+// first two arguments are the context and the namespace.
+func splitExecArgs(cmd *cobra.Command, args []string) ([]string, []string) {
+	if dashLen := cmd.ArgsLenAtDash(); dashLen >= 0 {
+		return args[:dashLen], args[dashLen:]
+	}
+
 	for index, arg := range args {
 		if arg == "--" && index <= 2 {
 			return args[:index], args[index+1:]
@@ -137,6 +157,41 @@ func splitExecArgs(args []string) ([]string, []string) {
 	}
 
 	return args, nil
+}
+
+// currentContextName returns the context of the running kon shell, used when
+// exec is called without a context.
+func currentContextName() (string, error) {
+	if err := vars.EnsureActive(); err != nil {
+		return "", fmt.Errorf("cannot fall back to the current context: %w", err)
+	}
+
+	kubecfg, err := currentConfig()
+	if err != nil {
+		return "", err
+	}
+
+	if kubecfg.CurrentContext == "" {
+		return "", fmt.Errorf("the current kubeconfig has no current context")
+	}
+
+	return kubecfg.CurrentContext, nil
+}
+
+// currentNamespace returns the namespace of the running kon shell and whether
+// it is known. Outside a kon shell the namespace is unknown and the context
+// falls back to its default namespace.
+func currentNamespace() (string, bool) {
+	if !vars.Active() {
+		return "", false
+	}
+
+	kubecfg, err := currentConfig()
+	if err != nil || len(kubecfg.Contexts) == 0 {
+		return "", false
+	}
+
+	return kubecfg.Contexts[0].Context.Namespace, true
 }
 
 func shouldPrintContextHeaders(config *settings.Settings, override string) (bool, error) {

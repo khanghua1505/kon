@@ -64,6 +64,8 @@ a terminal, show a terminal list prompt, then print a numbered list for non-inte
 * `kon ns <namespace> -r` spawn a recursive shell in the given namespace
 * `kon ns -u` unset the namespace in the currently active context
 * `kon exec <context> <namespace> -- <cmd> <args>...` execute a command in the given context and namespace
+* `kon exec <context> -- <cmd> <args>...` execute a command in the given context and the current namespace
+* `kon exec -- <cmd> <args>...` execute a command in the current context and namespace (inside a kon shell)
 * `kon exec <wildcard> <namespace> -- <cmd> <args>...` execute a command in all the contexts matched by the wildcard and in the given namespace
 * `kon exec <wildcard> <namespace> -e -- <cmd> <args>...` same, but fail early if any executed command returns a non-zero exit code
 * `kon exec --context-headers <auto|always|never> ...` override the `behavior.print_context_in_exec` setting
