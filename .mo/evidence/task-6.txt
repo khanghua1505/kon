@@ -1,3 +1,0 @@
-== row6 README acceptance @ 3bdfb89 pre-commit ==
-NO_FZF
-4

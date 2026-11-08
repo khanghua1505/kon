@@ -1,6 +1,0 @@
-{"task":"task-1","status":"task-completed","commit":"6409c80","note":"delete fzf picker surface; row1 lane"}
-{"task":"task-7","status":"task-completed","commit":"a8ee047","note":"internal/tui/style named-color package; row7 lane"}
-{"task":"task-2","status":"task-completed","commit":"3bdfb89","note":"TuiSettings dual-form decode; root takeover after 2 killed lanes"}
-{"task":"task-3","status":"task-completed","commit":"570ef95","note":"picker fallback chain + resolveColors; root takeover after empty lane (analysis only, zero artifacts); commit message from brief (shorter than plan variant)"}
-{"task":"task-4","status":"task-completed","commit":"2c2857c","note":"lane e461e8e verified (build/test/vet/grep green on committed tree), cherry-picked; main dirty partial cmd edits stashed as pre-row4-manual"}
-{"task":"task-6","status":"task-completed","commit":"8581e8b+d905bd5","note":"lane 0ec42f9 fzf removal + root restructure to upstream kubie layout (icon, TOC, Installation/Usage/Settings/Env/Divergences/Attribution); zero fzf mentions"}
