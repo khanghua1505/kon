@@ -1,0 +1,7 @@
+== row5 acceptance ==
+ok  	github.com/khanghua1505/kon/internal/picker	0.144s
+== full build ==
+== vet ==
+VET_OK
+== gofmt ==
+FMT_OK
