@@ -10,6 +10,23 @@ import (
 	"time"
 )
 
+// konEnv drops kon and kubie session variables from base so spawned
+// commands start outside any live kon shell.
+func konEnv(base []string) []string {
+	clean := make([]string, 0, len(base))
+	for _, kv := range base {
+		name := kv
+		if i := strings.Index(kv, "="); i >= 0 {
+			name = kv[:i]
+		}
+		if strings.HasPrefix(name, "KON_") || strings.HasPrefix(name, "KUBIE_") || name == "KUBECONFIG" {
+			continue
+		}
+		clean = append(clean, kv)
+	}
+	return clean
+}
+
 func buildBin(t *testing.T) string {
 	t.Helper()
 	bin := filepath.Join(t.TempDir(), "kon")
@@ -84,7 +101,14 @@ func TestE2EExportCtx(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	cmdE := exec.CommandContext(ctx, bin, "ctx", "-f", "testdata/e2e/kubeconfig/a.yaml", "ctx-a")
-	cmdE.Env = append(os.Environ(), "HOME="+home, "PATH="+filepath.Dir(bin)+":"+os.Getenv("PATH"), "SHELL=/bin/bash", "KON_PROMPT_DISABLE=1", "KON_DEPTH=0")
+	cmdE.Env = append(konEnv(os.Environ()),
+		"HOME="+home,
+		"PATH="+filepath.Dir(bin)+":"+os.Getenv("PATH"),
+		"SHELL=/bin/bash",
+		"KON_PROMPT_DISABLE=1",
+		"KON_DEPTH=0",
+		"KON_STATE="+os.Getenv("KON_STATE"),
+	)
 	cmdE.Stdin = strings.NewReader(strings.Join([]string{
 		"kon info ctx",
 		"kon info ns",
@@ -146,6 +170,7 @@ func TestE2ECtxNamespaceRewrite(t *testing.T) {
 		"kon info ns || exit 1",
 		"exit 0",
 	}, "\n") + "\n")
+	cmd.Env = append(konEnv(os.Environ()), "KON_STATE="+os.Getenv("KON_STATE"))
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("ctx namespace rewrite: %v\n%s", err, out)

@@ -151,6 +151,7 @@ func TestExecSuccess(t *testing.T) {
 func TestExecSetsKubeEnvironmentAndContextHeader(t *testing.T) {
 	writeSettingsWithBehavior(t, "testdata/export/kubeconfig/*.yaml", "always")
 	t.Setenv("KON_DEPTH", "")
+	t.Setenv("KUBIE_DEPTH", "")
 
 	out, err := runRoot(t, "exec", "ctx-a", "my-ns", "--", "sh", "-c", "printf '%s|%s|%s\\n' \"$KUBECONFIG\" \"$KON_ACTIVE\" \"$KON_DEPTH\"")
 	if err != nil {
