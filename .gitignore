@@ -1,0 +1,9 @@
+# binaries
+/kon
+/kubie
+
+# goreleaser
+dist/
+
+# agent state
+.omo/
