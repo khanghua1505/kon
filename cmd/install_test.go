@@ -17,8 +17,8 @@ func TestEnsurePluginScripts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(paths) != 2 {
-		t.Fatalf("got %d paths, want 2", len(paths))
+	if len(paths) != 3 {
+		t.Fatalf("got %d paths, want 3", len(paths))
 	}
 
 	resolvedDir, err := filepath.EvalSymlinks(dir)
@@ -26,6 +26,7 @@ func TestEnsurePluginScripts(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := map[string]string{
+		filepath.Join(resolvedDir, "kubectl-on"):  "#!/bin/sh\nexec \"$(dirname \"$0\")/kon\"  \"$@\"\n",
 		filepath.Join(resolvedDir, "kubectl-ctx"): "#!/bin/sh\nexec \"$(dirname \"$0\")/kon\" ctx \"$@\"\n",
 		filepath.Join(resolvedDir, "kubectl-ns"):  "#!/bin/sh\nexec \"$(dirname \"$0\")/kon\" ns \"$@\"\n",
 	}
