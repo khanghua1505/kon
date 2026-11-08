@@ -51,7 +51,7 @@ func GetNamespacesContext(ctx context.Context, opts Options) ([]string, error) {
 		removeConfig = true
 		defer func() {
 			if removeConfig {
-				os.Remove(kubeconfigPath)
+				_ = os.Remove(kubeconfigPath)
 			}
 		}()
 	} else if kubeconfigPath == "" {

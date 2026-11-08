@@ -38,7 +38,7 @@ func newInfoCtxCmd() *cobra.Command {
 				return err
 			}
 
-			fmt.Fprintln(cmd.OutOrStdout(), config.CurrentContext)
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), config.CurrentContext)
 
 			return nil
 		},
@@ -68,7 +68,7 @@ func newInfoNsCmd() *cobra.Command {
 			if namespace == "" {
 				namespace = "default"
 			}
-			fmt.Fprintln(cmd.OutOrStdout(), namespace)
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), namespace)
 
 			return nil
 		},
@@ -86,7 +86,7 @@ func newInfoDepthCmd() *cobra.Command {
 				return err
 			}
 
-			fmt.Fprintln(cmd.OutOrStdout(), vars.Depth())
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), vars.Depth())
 
 			return nil
 		},

@@ -92,7 +92,7 @@ func withLock(fn func() error) error {
 	if err != nil {
 		return fmt.Errorf("could not open lock file %s: %w", lockPath, err)
 	}
-	defer lock.Close()
+	defer func() { _ = lock.Close() }()
 
 	if err := syscall.Flock(int(lock.Fd()), syscall.LOCK_EX); err != nil {
 		return fmt.Errorf("could not lock file %s: %w", lockPath, err)
@@ -149,10 +149,10 @@ func writeState(current *State) error {
 		return fmt.Errorf("failed to write state to '%s': %w", statePath, err)
 	}
 	tmpPath := tmp.Name()
-	defer os.Remove(tmpPath) // no-op once the rename succeeded
+	defer func() { _ = os.Remove(tmpPath) }() // no-op once the rename succeeded
 
 	if _, err := tmp.Write(data); err != nil {
-		tmp.Close()
+		_ = tmp.Close()
 		return fmt.Errorf("failed to write state to '%s': %w", statePath, err)
 	}
 	if err := tmp.Close(); err != nil {

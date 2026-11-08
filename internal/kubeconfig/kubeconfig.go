@@ -97,12 +97,12 @@ func (kc *KubeConfig) WriteTemp() (string, error) {
 	}
 	path := file.Name()
 	if err := file.Close(); err != nil {
-		os.Remove(path)
+		_ = os.Remove(path)
 		return "", err
 	}
 
 	if err := kc.WriteToFile(path); err != nil {
-		os.Remove(path)
+		_ = os.Remove(path)
 		return "", err
 	}
 

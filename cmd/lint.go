@@ -44,12 +44,12 @@ func lintClusters(installed *kubeconfig.Installed, out io.Writer) {
 		source := cluster.Source
 
 		if len(installed.FindContextsByCluster(name, source)) == 0 {
-			fmt.Fprintf(out, "Cluster '%s' has no context referencing it in file %s\n", name, source)
+			_, _ = fmt.Fprintf(out, "Cluster '%s' has no context referencing it in file %s\n", name, source)
 		}
 
 		key := name + "\x00" + source
 		if seen[key] {
-			fmt.Fprintf(out, "A cluster named '%s' appears more than once in file %s\n", name, source)
+			_, _ = fmt.Fprintf(out, "A cluster named '%s' appears more than once in file %s\n", name, source)
 		} else {
 			seen[key] = true
 		}
@@ -64,12 +64,12 @@ func lintUsers(installed *kubeconfig.Installed, out io.Writer) {
 		source := user.Source
 
 		if len(installed.FindContextsByUser(name, source)) == 0 {
-			fmt.Fprintf(out, "User '%s' has no context referencing it in file %s\n", name, source)
+			_, _ = fmt.Fprintf(out, "User '%s' has no context referencing it in file %s\n", name, source)
 		}
 
 		key := name + "\x00" + source
 		if seen[key] {
-			fmt.Fprintf(out, "A user named '%s' appears more than once in file %s\n", name, source)
+			_, _ = fmt.Fprintf(out, "A user named '%s' appears more than once in file %s\n", name, source)
 		} else {
 			seen[key] = true
 		}
@@ -84,15 +84,15 @@ func lintContexts(installed *kubeconfig.Installed, out io.Writer) {
 		source := context.Source
 
 		if installed.FindClusterByName(context.Item.Context.Cluster, source) == nil {
-			fmt.Fprintf(out, "Context '%s' references unknown cluster '%s' in file %s\n", name, context.Item.Context.Cluster, source)
+			_, _ = fmt.Fprintf(out, "Context '%s' references unknown cluster '%s' in file %s\n", name, context.Item.Context.Cluster, source)
 		}
 
 		if installed.FindUserByName(context.Item.Context.User, source) == nil {
-			fmt.Fprintf(out, "Context '%s' references unknown users '%s' in file %s\n", name, context.Item.Context.User, source)
+			_, _ = fmt.Fprintf(out, "Context '%s' references unknown users '%s' in file %s\n", name, context.Item.Context.User, source)
 		}
 
 		if seen[name] {
-			fmt.Fprintf(out, "A context name '%s' appears more than once in file %s\n", name, source)
+			_, _ = fmt.Fprintf(out, "A context name '%s' appears more than once in file %s\n", name, source)
 		} else {
 			seen[name] = true
 		}

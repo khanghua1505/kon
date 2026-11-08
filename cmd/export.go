@@ -42,7 +42,7 @@ func newExportCmd() *cobra.Command {
 					return err
 				}
 
-				fmt.Fprintln(cmd.OutOrStdout(), path)
+				_, _ = fmt.Fprintln(cmd.OutOrStdout(), path)
 			}
 
 			return nil

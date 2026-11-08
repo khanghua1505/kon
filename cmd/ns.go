@@ -164,7 +164,7 @@ func pickNamespace(cmd *cobra.Command, cfg *settings.Settings, namespaces []stri
 	out := cmd.OutOrStdout()
 	if file, ok := out.(*os.File); !ok || !tty.IsTerminal(file) {
 		for _, namespace := range sorted {
-			fmt.Fprintln(out, namespace)
+			_, _ = fmt.Fprintln(out, namespace)
 		}
 		return nil, nil
 	}

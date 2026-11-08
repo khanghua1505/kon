@@ -70,7 +70,7 @@ func spawnBash(info *spawnInfo) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer os.Remove(rcPath)
+	defer func() { _ = os.Remove(rcPath) }()
 
 	cmd := exec.Command("bash", "--rcfile", rcPath)
 	info.envVars.Apply(cmd)
@@ -86,7 +86,7 @@ func spawnBash(info *spawnInfo) (int, error) {
 		if err != nil {
 			return code, err
 		}
-		defer os.Remove(hookPath)
+		defer func() { _ = os.Remove(hookPath) }()
 
 		exitCmd := exec.Command("bash", hookPath)
 		info.envVars.Apply(exitCmd)

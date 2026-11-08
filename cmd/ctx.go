@@ -161,7 +161,7 @@ func enterContext(cfg *settings.Settings, installed *kubeconfig.Installed, conte
 			return err
 		}
 		if !slices.Contains(namespaces, namespaceName) {
-			fmt.Fprintf(stderr, "Warning: namespace %s does not exist.\n", namespaceName)
+			_, _ = fmt.Fprintf(stderr, "Warning: namespace %s does not exist.\n", namespaceName)
 		}
 	}
 

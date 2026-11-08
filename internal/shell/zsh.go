@@ -138,7 +138,7 @@ func spawnZsh(info *spawnInfo) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 
 	rcPath := filepath.Join(dir, ".zshrc")
 	if err := os.WriteFile(rcPath, []byte(zshRCContent(info)), 0o600); err != nil {
@@ -159,7 +159,7 @@ func spawnZsh(info *spawnInfo) (int, error) {
 		if err != nil {
 			return code, err
 		}
-		defer os.Remove(hookPath)
+		defer func() { _ = os.Remove(hookPath) }()
 
 		exitCmd := exec.Command("zsh", hookPath)
 		info.envVars.Apply(exitCmd)

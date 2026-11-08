@@ -18,13 +18,13 @@ func writeTempFile(prefix, suffix, content string) (string, error) {
 
 	path := file.Name()
 	if _, err := file.WriteString(content); err != nil {
-		file.Close()
-		os.Remove(path)
+		_ = file.Close()
+		_ = os.Remove(path)
 		return "", err
 	}
 
 	if err := file.Close(); err != nil {
-		os.Remove(path)
+		_ = os.Remove(path)
 		return "", err
 	}
 

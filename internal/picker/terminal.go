@@ -38,7 +38,7 @@ func promptList(items []string, opts Options) (Result, string, error) {
 
 		choice, convErr := strconv.Atoi(answer)
 		if convErr != nil || choice < 1 || choice > len(items) {
-			fmt.Fprintf(opts.Out, "Invalid selection: %s\n", answer)
+			_, _ = fmt.Fprintf(opts.Out, "Invalid selection: %s\n", answer)
 
 			if err != nil {
 				// The input is exhausted, there is nothing left to read.

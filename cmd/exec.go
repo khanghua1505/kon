@@ -90,7 +90,7 @@ func runExec(cmd *cobra.Command, opts *execOptions, args []string) error {
 
 	for _, context := range matching {
 		if printContext {
-			fmt.Fprintf(cmd.OutOrStdout(), "CONTEXT => %s\n", context.Item.Name)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "CONTEXT => %s\n", context.Item.Name)
 		}
 
 		isolated, err := installed.MakeKubeconfigForContext(context.Item.Name, &namespace)
@@ -104,7 +104,7 @@ func runExec(cmd *cobra.Command, opts *execOptions, args []string) error {
 		}
 
 		if printContext {
-			fmt.Fprintln(cmd.OutOrStdout(), strings.Repeat("-", 20))
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), strings.Repeat("-", 20))
 		}
 
 		if code != 0 {
@@ -170,7 +170,7 @@ func runInContext(cmd *cobra.Command, config *kubeconfig.KubeConfig, command []s
 	if err != nil {
 		return 0, err
 	}
-	defer os.Remove(path)
+	defer func() { _ = os.Remove(path) }()
 
 	child := exec.Command(command[0], command[1:]...)
 	child.Stdin = cmd.InOrStdin()

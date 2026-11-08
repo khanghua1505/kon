@@ -48,11 +48,11 @@ func runUpdate(cmd *cobra.Command) error {
 	}
 
 	if release.TagName == "v"+Version {
-		fmt.Fprintf(cmd.OutOrStdout(), "Kubie is up-to-date : v%s\n", Version)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Kubie is up-to-date : v%s\n", Version)
 		return nil
 	}
 
-	fmt.Fprintf(cmd.OutOrStdout(), "A new version of Kubie is available (%s), the new version will be installed by replacing this binary.\n", release.TagName)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "A new version of Kubie is available (%s), the new version will be installed by replacing this binary.\n", release.TagName)
 
 	url := ""
 	for _, asset := range release.Assets {
@@ -66,7 +66,7 @@ func runUpdate(cmd *cobra.Command) error {
 		return fmt.Errorf("Sorry, this release has no build for your OS, please create an issue : %s", releaseIssueURL)
 	}
 
-	fmt.Fprintf(cmd.OutOrStdout(), "Download url is: %s\n", url)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Download url is: %s\n", url)
 
 	executable, err := os.Executable()
 	if err != nil {
@@ -77,7 +77,7 @@ func runUpdate(cmd *cobra.Command) error {
 		return err
 	}
 
-	fmt.Fprintf(cmd.OutOrStdout(), "Kubie has been updated successfully: %s\n", executable)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Kubie has been updated successfully: %s\n", executable)
 
 	return nil
 }
@@ -87,7 +87,7 @@ func fetchLatestRelease(client *http.Client, url string) (*githubRelease, error)
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 
 	if response.StatusCode == http.StatusNotFound {
 		return nil, fmt.Errorf("no release published yet at %s, please create an issue: %s", latestReleaseURL, releaseIssueURL)
@@ -127,7 +127,7 @@ func replaceExecutable(path, url string, client *http.Client) error {
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 
 	if response.StatusCode != http.StatusOK {
 		return fmt.Errorf("could not download %s: %s", url, response.Status)
@@ -138,10 +138,10 @@ func replaceExecutable(path, url string, client *http.Client) error {
 		return err
 	}
 	tempName := temp.Name()
-	defer os.Remove(tempName)
+	defer func() { _ = os.Remove(tempName) }()
 
 	if _, err := io.Copy(temp, response.Body); err != nil {
-		temp.Close()
+		_ = temp.Close()
 		return err
 	}
 

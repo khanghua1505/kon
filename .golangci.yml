@@ -1,0 +1,18 @@
+version: "2"
+
+run:
+  go: "1.23"
+
+linters:
+  exclusions:
+    presets:
+      - comments
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
+      # ST1005: error strings mirror upstream kubie (Rust) user-visible text
+      # verbatim; restyle would diverge from upstream behavior.
+      - linters:
+          - staticcheck
+        text: "^ST1005:"

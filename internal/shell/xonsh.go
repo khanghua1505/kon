@@ -66,7 +66,7 @@ func spawnXonsh(info *spawnInfo) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer os.Remove(rcPath)
+	defer func() { _ = os.Remove(rcPath) }()
 
 	cmd := exec.Command("xonsh", "--rc", rcPath)
 	info.envVars.Apply(cmd)

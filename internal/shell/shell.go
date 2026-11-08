@@ -114,13 +114,13 @@ func Shell(s *settings.Settings, config *kubeconfig.KubeConfig, sess *session.Se
 	if err != nil {
 		return 0, fmt.Errorf("could not write temporary kubeconfig: %w", err)
 	}
-	defer os.Remove(configPath)
+	defer func() { _ = os.Remove(configPath) }()
 
 	sessionPath, err := writeSessionTemp(sess)
 	if err != nil {
 		return 0, fmt.Errorf("could not write temporary session file: %w", err)
 	}
-	defer os.Remove(sessionPath)
+	defer func() { _ = os.Remove(sessionPath) }()
 
 	nextDepth := vars.Depth() + 1
 
@@ -235,18 +235,18 @@ func writeSessionTemp(sess *session.Session) (string, error) {
 	}
 	data, err := json.Marshal(session.Session{History: history})
 	if err != nil {
-		file.Close()
-		os.Remove(path)
+		_ = file.Close()
+		_ = os.Remove(path)
 		return "", err
 	}
 
 	if _, err := file.Write(data); err != nil {
-		file.Close()
-		os.Remove(path)
+		_ = file.Close()
+		_ = os.Remove(path)
 		return "", err
 	}
 	if err := file.Close(); err != nil {
-		os.Remove(path)
+		_ = os.Remove(path)
 		return "", err
 	}
 	return path, nil
