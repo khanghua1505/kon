@@ -16,7 +16,6 @@ type exitCoder interface {
 
 func main() {
 	root := cmd.NewRootCmd()
-	cmd.RegisterCommands(root)
 
 	if err := root.Execute(); err != nil {
 		var coder exitCoder
