@@ -10,7 +10,7 @@ Kubernetes contexts from multiple files. You can configure the paths where kon w
 
 kon also has other nice features such as `kon exec` which allows you to execute commands in a context and a namespace
 without having to spawn a shell, `kon lint` which scans your k8s config files for issues and informs you of what they
-are, and a built-in TUI picker that replaces kubie's fzf dependency.
+are, and a built-in TUI picker that removes kubie's external fuzzy-finder dependency.
 
 * [Installation](#installation)
 * [Usage](#usage)
@@ -216,7 +216,7 @@ Intentional/known behavioral differences vs kubie-org/kubie (Rust):
 - **`KON_KUBECONFIG` error text.** Upstream: `KON_KUBECONFIG variable not set`. Here: `KON_KUBECONFIG env variable missing`.
 - **Namespace-list parsing.** Upstream splits `kubectl` output lines on the first space only; here on the first space or tab. Equivalent for real `kubectl` output.
 - **State writes.** Upstream writes the state file in place; here a temp file is written next to it and renamed, so readers never see a partial file. The state directory is also pre-checked and a non-directory path reported explicitly.
-- **Picker.** Upstream uses fzf/skim for interactive menus. kon ships a built-in Bubble Tea TUI picker enabled by default; fzf is not used at all.
+- **Picker.** Upstream shells out to an external fuzzy finder (skim) for interactive menus. kon ships a built-in Bubble Tea TUI picker enabled by default; no external tool is used.
 
 ## Attribution
 
