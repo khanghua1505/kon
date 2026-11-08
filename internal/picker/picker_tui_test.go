@@ -4,15 +4,15 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"github.com/khanghua1505/kon/internal/tui/style"
 )
 
 func newTestModel(items []string) tuiModel {
-	return newTuiModel(items, lipgloss.Color("212"), lipgloss.Color("238"))
+	return newTuiModel(items, style.Default())
 }
 
-func updateKeys(t *testing.T, m tuiModel, keys ...tea.KeyMsg) tuiModel {
+func updateKeys(t *testing.T, m tuiModel, keys ...tea.KeyPressMsg) tuiModel {
 	t.Helper()
 
 	for _, key := range keys {
@@ -23,14 +23,14 @@ func updateKeys(t *testing.T, m tuiModel, keys ...tea.KeyMsg) tuiModel {
 	return m
 }
 
-func keyRunes(s string) tea.KeyMsg {
-	return tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(s)}
+func keyRunes(s string) tea.KeyPressMsg {
+	return tea.KeyPressMsg{Text: s}
 }
 
 func TestTuiModelFilterSelects(t *testing.T) {
 	m := newTestModel([]string{"dev-a", "prod-eu", "dev-b"})
 
-	m = updateKeys(t, m, keyRunes("dev"), tea.KeyMsg{Type: tea.KeyDown}, tea.KeyMsg{Type: tea.KeyEnter})
+	m = updateKeys(t, m, keyRunes("dev"), tea.KeyPressMsg{Code: tea.KeyDown}, tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	if m.choice != "dev-b" {
 		t.Errorf("choice = %q, want %q", m.choice, "dev-b")
@@ -40,7 +40,7 @@ func TestTuiModelFilterSelects(t *testing.T) {
 func TestTuiModelEscCancels(t *testing.T) {
 	m := newTestModel([]string{"dev-a"})
 
-	m = updateKeys(t, m, tea.KeyMsg{Type: tea.KeyEsc})
+	m = updateKeys(t, m, tea.KeyPressMsg{Code: tea.KeyEsc})
 
 	if m.choice != "" || !m.quitting {
 		t.Errorf("choice = %q, quitting = %v, want cancel", m.choice, m.quitting)
@@ -58,7 +58,7 @@ func TestTuiModelEmptyQueryListsAll(t *testing.T) {
 func TestTuiModelBackspaceRestores(t *testing.T) {
 	m := newTestModel([]string{"dev-a", "prod-eu"})
 
-	m = updateKeys(t, m, keyRunes("zzz"), tea.KeyMsg{Type: tea.KeyBackspace, Runes: []rune("z")}, tea.KeyMsg{Type: tea.KeyBackspace, Runes: []rune("z")}, tea.KeyMsg{Type: tea.KeyBackspace, Runes: []rune("z")})
+	m = updateKeys(t, m, keyRunes("zzz"), tea.KeyPressMsg{Code: tea.KeyBackspace}, tea.KeyPressMsg{Code: tea.KeyBackspace}, tea.KeyPressMsg{Code: tea.KeyBackspace})
 
 	if m.query != "" || len(m.filtered) != 2 {
 		t.Errorf("query = %q, filtered = %v, want empty query and all items", m.query, m.filtered)
@@ -68,13 +68,13 @@ func TestTuiModelBackspaceRestores(t *testing.T) {
 func TestTuiModelCursorClamps(t *testing.T) {
 	m := newTestModel([]string{"a", "b", "c"})
 
-	m = updateKeys(t, m, tea.KeyMsg{Type: tea.KeyUp})
+	m = updateKeys(t, m, tea.KeyPressMsg{Code: tea.KeyUp})
 
 	if m.cursor != 0 {
 		t.Errorf("cursor = %d, want 0", m.cursor)
 	}
 
-	m = updateKeys(t, m, tea.KeyMsg{Type: tea.KeyDown}, tea.KeyMsg{Type: tea.KeyDown}, tea.KeyMsg{Type: tea.KeyDown})
+	m = updateKeys(t, m, tea.KeyPressMsg{Code: tea.KeyDown}, tea.KeyPressMsg{Code: tea.KeyDown}, tea.KeyPressMsg{Code: tea.KeyDown})
 
 	if m.cursor != 2 {
 		t.Errorf("cursor = %d, want 2", m.cursor)
@@ -108,7 +108,7 @@ func TestTuiViewShowsFrame(t *testing.T) {
 	m := newTestModel([]string{"dev-a"})
 	m = updateKeys(t, m, keyRunes("dev"))
 
-	view := m.View()
+	view := m.View().Content
 
 	if !strings.Contains(view, "Select Context") || !strings.Contains(view, "❯ dev-a") {
 		t.Errorf("view missing frame or selection:\n%s", view)

@@ -5,12 +5,10 @@ import (
 	"os"
 	"strings"
 	"testing"
-
-	"github.com/khanghua1505/kon/internal/settings"
 )
 
 // forceTTY makes every stream look like a terminal for the duration of the
-// test, so the prompt branches of the fallback chain run without a real TTY.
+// test, so the TUI branch runs without a real TTY.
 func forceTTY(t *testing.T) {
 	t.Helper()
 
@@ -19,9 +17,9 @@ func forceTTY(t *testing.T) {
 	t.Cleanup(func() { isTTY = original })
 }
 
-// promptOut returns a pipe-backed output file plus a reader that must be
+// pipeOut returns a pipe-backed output file plus a reader that must be
 // called once after the interaction to collect everything written to it.
-func promptOut(t *testing.T) (*os.File, func() string) {
+func pipeOut(t *testing.T) (*os.File, func() string) {
 	t.Helper()
 
 	reader, writer, err := os.Pipe()
@@ -72,102 +70,22 @@ func TestSelectListsItemsWhenNotATerminal(t *testing.T) {
 	}
 }
 
-func TestSelectTerminalPromptReadsNumber(t *testing.T) {
+func TestSelectSingleItemListsWhenNotATerminal(t *testing.T) {
 	t.Setenv("PATH", t.TempDir())
 
-	forceTTY(t)
-	out, readOut := promptOut(t)
+	var out strings.Builder
 
-	result, item, err := SelectWithOptions([]string{"alpha", "beta"}, Options{
-		Tui: settings.TuiSettings{Enabled: false},
-		In:  strings.NewReader("2\n"),
-		Out: out,
-	})
+	result, item, err := SelectWithOptions([]string{"only"}, Options{Out: &out})
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
 
-	if result != Selected {
-		t.Fatalf("expected Selected, got %v", result)
+	if result != Listed || item != "" {
+		t.Fatalf("expected Listed and no item, got %v %q", result, item)
 	}
 
-	if item != "alpha" {
-		t.Fatalf("expected alpha, got %q", item)
-	}
-
-	if got := readOut(); !strings.Contains(got, "1) beta") || !strings.Contains(got, "2) alpha") {
-		t.Fatalf("expected the reversed menu, got %q", got)
-	}
-}
-
-func TestSelectTerminalPromptRepromptsOnInvalidNumber(t *testing.T) {
-	t.Setenv("PATH", t.TempDir())
-
-	forceTTY(t)
-	out, readOut := promptOut(t)
-
-	result, item, err := SelectWithOptions([]string{"alpha", "beta"}, Options{
-		Tui: settings.TuiSettings{Enabled: false},
-		In:  strings.NewReader("abc\n9\n1\n"),
-		Out: out,
-	})
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-
-	if result != Selected {
-		t.Fatalf("expected Selected, got %v", result)
-	}
-
-	if item != "beta" {
-		t.Fatalf("expected beta, got %q", item)
-	}
-
-	if got := strings.Count(readOut(), "Invalid selection:"); got != 2 {
-		t.Fatalf("expected 2 invalid selections, got %d", got)
-	}
-}
-
-func TestSelectTerminalPromptEndsOnEOF(t *testing.T) {
-	t.Setenv("PATH", t.TempDir())
-
-	forceTTY(t)
-	out, readOut := promptOut(t)
-
-	result, item, err := SelectWithOptions([]string{"alpha", "beta"}, Options{
-		Tui: settings.TuiSettings{Enabled: false},
-		In:  strings.NewReader(""),
-		Out: out,
-	})
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-
-	if result != Cancelled {
-		t.Fatalf("expected Cancelled, got %v", result)
-	}
-
-	if item != "" {
-		t.Fatalf("expected no item, got %q", item)
-	}
-
-	readOut()
-}
-
-func TestSelectReturnsSingleItemImmediately(t *testing.T) {
-	t.Setenv("PATH", t.TempDir())
-
-	result, item, err := Select([]string{"only"})
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-
-	if result != Selected {
-		t.Fatalf("expected Selected, got %v", result)
-	}
-
-	if item != "only" {
-		t.Fatalf("expected only, got %q", item)
+	if got := out.String(); got != "only\n" {
+		t.Fatalf("expected the single item listed, got %q", got)
 	}
 }
 

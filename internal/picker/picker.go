@@ -1,10 +1,8 @@
 // Package picker lets the user choose one item out of a list.
 //
-// It mirrors Rust kon's select_or_list_* helpers: with a single item it is
-// returned right away, the full-screen TUI is used when it is enabled and
-// both streams are terminals, the numbered terminal prompt is used when
-// stdout is a terminal, and otherwise the items are printed so that scripts
-// can consume them.
+// It mirrors Rust kon's select_or_list_* helpers: the full-screen TUI is
+// used when both streams are terminals, and otherwise the items are printed
+// so that scripts can consume them.
 package picker
 
 import (
@@ -13,8 +11,6 @@ import (
 	"os"
 	"slices"
 
-	"github.com/charmbracelet/lipgloss"
-	"github.com/khanghua1505/kon/internal/settings"
 	"github.com/khanghua1505/kon/internal/tui/style"
 )
 
@@ -32,11 +28,11 @@ const (
 
 // Options tunes SelectWithOptions.
 type Options struct {
-	// Tui carries the picker settings: the enabled toggle and colors.
-	Tui settings.TuiSettings
-	// In is the stream the terminal prompt reads the choice from.
+	// Style carries the theme the TUI renders from.
+	Style style.Style
+	// In is the input stream of the interactive TUI.
 	In io.Reader
-	// Out is the stream the item list and the prompt are written to.
+	// Out is the stream the TUI and the item list are written to.
 	Out io.Writer
 }
 
@@ -53,17 +49,11 @@ func Select(items []string) (Result, string, error) {
 	return SelectWithOptions(items, Options{})
 }
 
-// SelectWithOptions presents items and reports the outcome. The fallback
-// chain is: a single item is returned without any interaction, then the TUI
-// when enabled and both streams are terminals, then the numbered prompt when
-// stdout is a terminal, then the plain item list.
+// SelectWithOptions presents items and reports the outcome. The TUI runs
+// when both streams are terminals; otherwise the items are listed.
 func SelectWithOptions(items []string, opts Options) (Result, string, error) {
 	if len(items) == 0 {
 		return Cancelled, "", fmt.Errorf("no items to select")
-	}
-
-	if len(items) == 1 {
-		return Selected, items[0], nil
 	}
 
 	opts = opts.withDefaults()
@@ -75,14 +65,22 @@ func SelectWithOptions(items []string, opts Options) (Result, string, error) {
 	menu := slices.Clone(sorted)
 	slices.Reverse(menu)
 
-	switch {
-	case opts.Tui.IsEnabled() && attachedToTerminal(opts):
+	if attachedToTerminal(opts) {
 		return runTui(menu, opts)
-	case isTerminal(opts.Out):
-		return promptList(menu, opts)
-	default:
-		return listItems(sorted, opts)
 	}
+
+	return listItems(sorted, opts)
+}
+
+// listItems prints the sorted items one per line and reports them as listed.
+func listItems(items []string, opts Options) (Result, string, error) {
+	for _, item := range items {
+		if _, err := fmt.Fprintln(opts.Out, item); err != nil {
+			return Cancelled, "", fmt.Errorf("could not print the item list: %w", err)
+		}
+	}
+
+	return Listed, "", nil
 }
 
 // attachedToTerminal reports whether both picker streams are terminals.
@@ -91,17 +89,6 @@ func attachedToTerminal(opts Options) bool {
 	out, okOut := opts.Out.(*os.File)
 
 	return okIn && okOut && isTTY(in) && isTTY(out)
-}
-
-// listItems prints the items one per line so that scripts can consume them.
-func listItems(sorted []string, opts Options) (Result, string, error) {
-	for _, item := range sorted {
-		if _, err := fmt.Fprintln(opts.Out, item); err != nil {
-			return Listed, "", fmt.Errorf("could not print the item list: %w", err)
-		}
-	}
-
-	return Listed, "", nil
 }
 
 func sortedItems(items []string) []string {
@@ -120,33 +107,9 @@ func (o Options) withDefaults() Options {
 		o.Out = os.Stdout
 	}
 
+	if o.Style == (style.Style{}) {
+		o.Style = style.Default()
+	}
+
 	return o
-}
-
-// isTerminal reports whether the output stream is attached to a terminal.
-func isTerminal(out io.Writer) bool {
-	file, ok := out.(*os.File)
-	if !ok {
-		return false
-	}
-
-	return isTTY(file)
-}
-
-// resolveColors turns the configured color strings into terminal colors,
-// falling back to the defaults when they cannot be resolved.
-func resolveColors(tui settings.TuiSettings) (selected, border lipgloss.TerminalColor) {
-	selected, border = lipgloss.Color("212"), lipgloss.Color("238")
-
-	selectedText, borderText := tui.ColorValues()
-
-	if color, err := style.Resolve(selectedText); err == nil {
-		selected = color
-	}
-
-	if color, err := style.Resolve(borderText); err == nil {
-		border = color
-	}
-
-	return selected, border
 }

@@ -4,19 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
+	"github.com/khanghua1505/kon/internal/tui/style"
 )
 
 // tuiMaxListRows caps the visible rows of the full-screen picker.
 const tuiMaxListRows = 20
-
-var (
-	tuiTitleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("39"))
-	tuiQueryStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("254"))
-	tuiItemStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("252"))
-	tuiDimStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
-)
 
 // tuiModel is the bubbletea model behind the full-screen picker.
 type tuiModel struct {
@@ -28,13 +22,26 @@ type tuiModel struct {
 	quitting bool
 	width    int
 	height   int
-	selected lipgloss.TerminalColor
-	border   lipgloss.TerminalColor
+	title    lipgloss.Style
+	queryS   lipgloss.Style
+	item     lipgloss.Style
+	dim      lipgloss.Style
+	selected lipgloss.Style
+	border   lipgloss.Style
 }
 
-// newTuiModel builds the model for the given menu and colors.
-func newTuiModel(items []string, selected, border lipgloss.TerminalColor) tuiModel {
-	return tuiModel{items: items, filtered: items, selected: selected, border: border}
+// newTuiModel builds the model with the lipgloss styles derived from the theme.
+func newTuiModel(items []string, theme style.Style) tuiModel {
+	return tuiModel{
+		items:    items,
+		filtered: items,
+		title:    lipgloss.NewStyle().Bold(true).Foreground(theme.Secondary),
+		queryS:   lipgloss.NewStyle().Foreground(theme.Foreground),
+		item:     lipgloss.NewStyle().Foreground(theme.Foreground),
+		dim:      lipgloss.NewStyle().Foreground(theme.Muted),
+		selected: lipgloss.NewStyle().Bold(true).Foreground(theme.Primary),
+		border:   lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(theme.Border).Padding(0, 1),
+	}
 }
 
 // Init satisfies tea.Model.
@@ -48,34 +55,36 @@ func (m tuiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyCtrlC, tea.KeyEsc:
+	case tea.KeyPressMsg:
+		switch msg.String() {
+		case "ctrl+c", "esc":
 			m.quitting = true
 			return m, tea.Quit
-		case tea.KeyEnter:
+		case "enter":
 			if len(m.filtered) > 0 {
 				m.choice = m.filtered[m.cursor]
 			} else {
 				m.quitting = true
 			}
 			return m, tea.Quit
-		case tea.KeyUp:
+		case "up":
 			if m.cursor > 0 {
 				m.cursor--
 			}
-		case tea.KeyDown:
+		case "down":
 			if m.cursor < len(m.filtered)-1 {
 				m.cursor++
 			}
-		case tea.KeyBackspace:
+		case "backspace":
 			if m.query != "" {
 				m.query = m.query[:len(m.query)-1]
 				m.refilter()
 			}
-		case tea.KeyRunes:
-			m.query += string(msg.Runes)
-			m.refilter()
+		default:
+			if msg.Text != "" {
+				m.query += msg.Text
+				m.refilter()
+			}
 		}
 	}
 
@@ -83,12 +92,12 @@ func (m tuiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View renders the framed picker.
-func (m tuiModel) View() string {
+func (m tuiModel) View() tea.View {
 	if m.choice != "" || m.quitting {
-		return ""
+		return tea.NewView("")
 	}
 
-	selectedStyle := lipgloss.NewStyle().Bold(true).Foreground(m.selected)
+	selectedStyle := m.selected
 
 	var rows []string
 	start, visible := tuiWindow(m.filtered, m.cursor, m.listRows())
@@ -96,27 +105,26 @@ func (m tuiModel) View() string {
 		if start+i == m.cursor {
 			rows = append(rows, selectedStyle.Render("❯ "+item))
 		} else {
-			rows = append(rows, tuiItemStyle.Render("  "+item))
+			rows = append(rows, m.item.Render("  "+item))
 		}
 	}
 	if len(rows) == 0 {
-		rows = []string{tuiDimStyle.Render("  no matches")}
+		rows = []string{m.dim.Render("  no matches")}
 	}
 
-	divider := tuiDimStyle.Render(strings.Repeat("─", 32))
+	divider := m.dim.Render(strings.Repeat("─", 32))
 	lines := append(
 		[]string{
-			tuiTitleStyle.Render("Select Context"),
-			tuiQueryStyle.Render("> " + m.query),
+			m.title.Render("Select Context"),
+			m.queryS.Render("> " + m.query),
 			divider,
 		},
 		rows...,
 	)
-	boxStyle := lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(m.border).Padding(0, 1)
-	box := boxStyle.Render(lipgloss.JoinVertical(lipgloss.Left, lines...))
-	help := tuiDimStyle.Render("  ↑/↓ move · enter select · esc cancel")
+	box := m.border.Render(lipgloss.JoinVertical(lipgloss.Left, lines...))
+	help := m.dim.Render("  ↑/↓ move · enter select · esc cancel")
 
-	return lipgloss.JoinVertical(lipgloss.Left, box, help)
+	return tea.NewView(lipgloss.JoinVertical(lipgloss.Left, box, help))
 }
 
 // listRows returns how many rows fit between the frame chrome and the cap.
@@ -179,8 +187,7 @@ func tuiWindow(items []string, cursor, size int) (int, []string) {
 
 // runTui shows the full-screen picker and returns the outcome.
 func runTui(items []string, opts Options) (Result, string, error) {
-	selected, border := resolveColors(opts.Tui)
-	program := tea.NewProgram(newTuiModel(items, selected, border), tea.WithInput(opts.In), tea.WithOutput(opts.Out))
+	program := tea.NewProgram(newTuiModel(items, opts.Style), tea.WithInput(opts.In), tea.WithOutput(opts.Out))
 	final, err := program.Run()
 	if err != nil {
 		return Cancelled, "", fmt.Errorf("could not run the picker: %w", err)

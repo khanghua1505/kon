@@ -12,6 +12,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/khanghua1505/kon/internal/tty"
+	"github.com/khanghua1505/kon/internal/tui/style"
 )
 
 const configFileName = "kon.yaml"
@@ -28,31 +29,9 @@ type Settings struct {
 	Hooks         Hooks
 }
 
-// TuiSettings holds the TUI picker options. It decodes from both a scalar
-// bool (tui: true) and a map (tui: {selected_color: pink}).
-type TuiSettings struct {
-	Enabled       bool
-	SelectedColor *string
-	BorderColor   *string
-}
-
-// IsEnabled reports whether the TUI picker is enabled.
-func (t TuiSettings) IsEnabled() bool {
-	return t.Enabled
-}
-
-// ColorValues returns the selected and border colors, defaulting to 212/238.
-// Unresolvable names fall back at the picker site, never here.
-func (t TuiSettings) ColorValues() (selected, border string) {
-	selected, border = "212", "238"
-	if t.SelectedColor != nil && *t.SelectedColor != "" {
-		selected = *t.SelectedColor
-	}
-	if t.BorderColor != nil && *t.BorderColor != "" {
-		border = *t.BorderColor
-	}
-	return selected, border
-}
+// TuiSettings feeds the TUI theme. The shape is being redefined, so it is
+// empty for now and FromSettings applies the default palette.
+type TuiSettings struct{}
 
 // Configs holds the kubeconfig file globs.
 type Configs struct {
@@ -95,7 +74,7 @@ func Default() (*Settings, error) {
 			ValidateNamespaces: ValidateNamespacesTrue,
 			PrintContextInExec: ContextHeaderAuto,
 		},
-		Tui: TuiSettings{Enabled: true},
+		Tui: TuiSettings{},
 	}, nil
 }
 
@@ -181,6 +160,11 @@ func (s *Settings) GetKubeConfigsPaths() ([]string, error) {
 	sort.Strings(resolved)
 
 	return resolved, nil
+}
+
+// GetStyle resolves Style
+func (s *Settings) GetStyle() style.Style {
+	return style.Default()
 }
 
 // ExpandUser expands a leading "~/" with the home directory.

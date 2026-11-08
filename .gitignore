@@ -1,4 +1,5 @@
 /kon
 dist/
 .omo/
+.mo/
 vendor/

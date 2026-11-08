@@ -3,14 +3,15 @@ package style
 import (
 	"testing"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
+	"github.com/charmbracelet/x/ansi"
 )
 
 func Test_Resolve_returns_mapped_color_for_supported_value(t *testing.T) {
 	tests := []struct {
 		name  string
 		input string
-		want  lipgloss.TerminalColor
+		want  ansi.Color
 	}{
 		{"black", "black", lipgloss.ANSIColor(0)},
 		{"red", "red", lipgloss.ANSIColor(1)},
@@ -30,6 +31,11 @@ func Test_Resolve_returns_mapped_color_for_supported_value(t *testing.T) {
 		{"brightwhite", "brightwhite", lipgloss.ANSIColor(15)},
 		{"name uppercase", "BLACK", lipgloss.ANSIColor(0)},
 		{"name mixed case", "BrightWhite", lipgloss.ANSIColor(15)},
+		{"palette grey0", "grey0", lipgloss.ANSIColor(16)},
+		{"palette purple", "purple", lipgloss.ANSIColor(93)},
+		{"palette darkorange", "darkorange", lipgloss.ANSIColor(208)},
+		{"palette sandybrown", "sandybrown", lipgloss.ANSIColor(215)},
+		{"palette grey93", "grey93", lipgloss.ANSIColor(255)},
 		{"decimal", "212", lipgloss.Color("212")},
 		{"hex", "#ff5fd7", lipgloss.Color("#ff5fd7")},
 	}

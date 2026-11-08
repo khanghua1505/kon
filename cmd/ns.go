@@ -170,9 +170,9 @@ func pickNamespace(cmd *cobra.Command, cfg *settings.Settings, namespaces []stri
 	}
 
 	result, selected, err := picker.SelectWithOptions(sorted, picker.Options{
-		Tui: cfg.Tui,
-		In:  cmd.InOrStdin(),
-		Out: out,
+		Style: cfg.GetStyle(),
+		In:    cmd.InOrStdin(),
+		Out:   out,
 	})
 	if err != nil {
 		return nil, err

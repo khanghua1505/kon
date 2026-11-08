@@ -13,15 +13,6 @@ func TestDefaultMatchesUpstream(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if s.Tui.IsEnabled() != true {
-		t.Error("tui default must be enabled")
-	}
-
-	sel, border := s.Tui.ColorValues()
-	if sel != "212" || border != "238" {
-		t.Errorf("tui default colors = %q/%q, want 212/238", sel, border)
-	}
-
 	if !s.Prompt.ShowDepth {
 		t.Error("prompt.show_depth default must be true")
 	}
@@ -187,15 +178,6 @@ func TestLoadAppliesOverridesAndExcludesSelf(t *testing.T) {
 		t.Errorf("prompt overrides not applied: %+v", s.Prompt)
 	}
 
-	if !s.Tui.IsEnabled() {
-		t.Error("tui = false, want true")
-	}
-
-	sel, border := s.Tui.ColorValues()
-	if sel != "212" || border != "238" {
-		t.Errorf("tui colors = %q/%q, want default 212/238", sel, border)
-	}
-
 	if s.Behavior.ValidateNamespaces != ValidateNamespacesPartial {
 		t.Errorf("validate_namespaces = %q, want partial", s.Behavior.ValidateNamespaces)
 	}
@@ -278,90 +260,11 @@ func TestLoadWithoutConfigFileUsesDefaults(t *testing.T) {
 		t.Fatalf("Load: %v", err)
 	}
 
-	if !s.Tui.IsEnabled() || !s.Prompt.ShowDepth {
+	if !s.Prompt.ShowDepth {
 		t.Error("missing config file must yield upstream defaults")
 	}
 
 	if len(s.Configs.Include) != 7 {
 		t.Errorf("configs.include = %v, want 7 default globs", s.Configs.Include)
-	}
-}
-
-func TestLoadTuiDualForm(t *testing.T) {
-	for _, tc := range []struct {
-		name        string
-		config      string
-		wantEnabled bool
-		wantSel     string
-		wantBorder  string
-	}{
-		{
-			name:        "scalar true",
-			config:      "tui: true\n",
-			wantEnabled: true,
-			wantSel:     "212",
-			wantBorder:  "238",
-		},
-		{
-			name:        "scalar false",
-			config:      "tui: false\n",
-			wantEnabled: false,
-			wantSel:     "212",
-			wantBorder:  "238",
-		},
-		{
-			name:        "map enabled with colors",
-			config:      "tui:\n  enabled: true\n  selected_color: pink\n  border_color: '#00ff00'\n",
-			wantEnabled: true,
-			wantSel:     "pink",
-			wantBorder:  "#00ff00",
-		},
-		{
-			name:        "map disabled",
-			config:      "tui:\n  enabled: false\n",
-			wantEnabled: false,
-			wantSel:     "212",
-			wantBorder:  "238",
-		},
-		{
-			name:        "map partial colors",
-			config:      "tui:\n  selected_color: '42'\n",
-			wantEnabled: true,
-			wantSel:     "42",
-			wantBorder:  "238",
-		},
-		{
-			name:        "stale fzf key ignored",
-			config:      "tui: true\nfzf:\n  mouse: false\n",
-			wantEnabled: true,
-			wantSel:     "212",
-			wantBorder:  "238",
-		},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			home := t.TempDir()
-			t.Setenv("HOME", home)
-			if err := os.MkdirAll(filepath.Join(home, ".kube"), 0o755); err != nil {
-				t.Fatalf("mkdir: %v", err)
-			}
-			path := filepath.Join(home, ".kube", "kon.yaml")
-			if err := os.WriteFile(path, []byte(tc.config), 0o600); err != nil {
-				t.Fatalf("write config: %v", err)
-			}
-
-			s, err := Load()
-			if err != nil {
-				t.Fatalf("Load: %v", err)
-			}
-
-			if s.Tui.IsEnabled() != tc.wantEnabled {
-				t.Errorf("enabled = %v, want %v", s.Tui.IsEnabled(), tc.wantEnabled)
-			}
-
-			sel, border := s.Tui.ColorValues()
-			if sel != tc.wantSel || border != tc.wantBorder {
-				t.Errorf("colors = %q/%q, want %q/%q", sel, border, tc.wantSel, tc.wantBorder)
-			}
-		})
 	}
 }

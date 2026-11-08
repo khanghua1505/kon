@@ -27,13 +27,13 @@ const (
 
 func (s *Settings) UnmarshalYAML(value *yaml.Node) error {
 	type raw struct {
-		Shell         *string       `yaml:"shell"`
-		DefaultEditor *string       `yaml:"default_editor"`
-		Tui           *TuiSettings  `yaml:"tui"`
-		Configs       *Configs      `yaml:"configs"`
-		Prompt        *Prompt       `yaml:"prompt"`
-		Behavior      *Behavior     `yaml:"behavior"`
-		Hooks         *Hooks        `yaml:"hooks"`
+		Shell         *string      `yaml:"shell"`
+		DefaultEditor *string      `yaml:"default_editor"`
+		Tui           *TuiSettings `yaml:"tui"`
+		Configs       *Configs     `yaml:"configs"`
+		Prompt        *Prompt      `yaml:"prompt"`
+		Behavior      *Behavior    `yaml:"behavior"`
+		Hooks         *Hooks       `yaml:"hooks"`
 	}
 
 	var parsed raw
@@ -202,36 +202,11 @@ func (h *Hooks) UnmarshalYAML(value *yaml.Node) error {
 }
 
 func (t *TuiSettings) UnmarshalYAML(value *yaml.Node) error {
-	*t = TuiSettings{Enabled: true}
-
-	if value.Kind == yaml.ScalarNode {
-		var enabled bool
-		if err := value.Decode(&enabled); err != nil {
-			return fmt.Errorf("could not parse tui: %w", err)
-		}
-		t.Enabled = enabled
-		return nil
-	}
-
-	if value.Kind == yaml.MappingNode {
-		type raw struct {
-			Enabled       *bool   `yaml:"enabled"`
-			SelectedColor *string `yaml:"selected_color"`
-			BorderColor   *string `yaml:"border_color"`
-		}
-		var parsed raw
-		if err := value.Decode(&parsed); err != nil {
-			return fmt.Errorf("could not parse tui: %w", err)
-		}
-		if parsed.Enabled != nil {
-			t.Enabled = *parsed.Enabled
-		}
-		t.SelectedColor = parsed.SelectedColor
-		t.BorderColor = parsed.BorderColor
-		return nil
-	}
-
-	return fmt.Errorf("could not parse tui: expected bool or map")
+	// TuiSettings carries no fields yet. Legacy `tui: true|false` and
+	// `tui: {selected_color: ...}` shapes are accepted and ignored so old
+	// config files keep loading; token fields decode here once redefined.
+	*t = TuiSettings{}
+	return nil
 }
 
 func (v *ValidateNamespaces) UnmarshalYAML(value *yaml.Node) error {
