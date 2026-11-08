@@ -1,6 +1,6 @@
-# kubie (Go port)
+# kon (Go port of kubie)
 
-`kubie` is a Go port of [kubie](https://github.com/kubie-org/kubie), a more powerful
+`kon` is a Go port of [kubie](https://github.com/kubie-org/kubie), a more powerful
 alternative to `kubectx` and `kubens`. It switches Kubernetes contexts and namespaces
 in a shell-independent way, and adds commands to run one-off commands against a
 context (`exec`), inspect kubeconfig files (`lint`), print the active context
@@ -10,53 +10,53 @@ binary itself.
 ## Install
 
 ```sh
-go install github.com/khanghua1505/kubie@latest
+go install github.com/khanghua1505/kubie/cmd/kon@latest
 ```
 
 The binary lands in `$GOBIN` (default `$(go env GOPATH)/bin`).
 
 ## Usage
 
-Selectable menus are available using `kubie ctx` and `kubie ns`.
+Selectable menus are available using `kon ctx` and `kon ns`.
 
 `fzf` is an optional dependency. It enables interactive fuzzy selection; without
-it, kubie falls back to plain terminal lists.
+it, kon falls back to plain terminal lists.
 
-* `kubie ctx` display selectable menu of contexts
-* `kubie ctx <context>` switch current shell to given context (spawns shell if not kubie shell)
-* `kubie ctx -` switch back to previous context
-* `kubie ctx <context> -r` spawn recursive shell in given context
-* `kubie ctx <context> -n <namespace>` spawn a shell in given context and namespace
-* `kubie ctx <context> -f <kubeconfig>` load contexts from the given kubeconfig files instead of the installed ones
-* `kubie ns` display selectable menu of namespaces
-* `kubie ns <namespace>` switch current shell to given namespace
-* `kubie ns -` switch back to previous namespace
-* `kubie ns <namespace> -r` spawn recursive shell in given namespace
-* `kubie ns -u` unset the namespace in the currently active context
-* `kubie exec <context> <namespace> -- <cmd> <args>...` execute command in given context and namespace
-* `kubie exec <wildcard> <namespace> -- <cmd> <args>...` execute command in all contexts matched by wildcard and in given namespace
-* `kubie exec <wildcard> <namespace> -e -- <cmd> <args>...` same, but fail early if any executed command returns a non-zero exit code
-* `kubie exec --context-headers <auto|always|never> ...` override the `behavior.print_context_in_exec` setting
-* `kubie export <context> <namespace>` print path of the isolated config file for context and namespace
-* `kubie info ctx` print name of current context
-* `kubie info ns` print name of current namespace
-* `kubie info depth` print depth of recursive contexts
-* `kubie lint` lint kubeconfig files and report issues
-* `kubie edit` display selectable menu of contexts to edit
-* `kubie edit <context>` edit the file containing this context
-* `kubie edit-config` edit kubie's own config file
-* `kubie delete <context>` delete a context, its cluster and its user
-* `kubie update` check for a new release and update the local installation
-* `kubie generate-completion [SHELL]` generate a completion script for the given shell
+* `kon ctx` display selectable menu of contexts
+* `kon ctx <context>` switch current shell to given context (spawns shell if not kon shell)
+* `kon ctx -` switch back to previous context
+* `kon ctx <context> -r` spawn recursive shell in given context
+* `kon ctx <context> -n <namespace>` spawn a shell in given context and namespace
+* `kon ctx <context> -f <kubeconfig>` load contexts from the given kubeconfig files instead of the installed ones
+* `kon ns` display selectable menu of namespaces
+* `kon ns <namespace>` switch current shell to given namespace
+* `kon ns -` switch back to previous namespace
+* `kon ns <namespace> -r` spawn recursive shell in given namespace
+* `kon ns -u` unset the namespace in the currently active context
+* `kon exec <context> <namespace> -- <cmd> <args>...` execute command in given context and namespace
+* `kon exec <wildcard> <namespace> -- <cmd> <args>...` execute command in all contexts matched by wildcard and in given namespace
+* `kon exec <wildcard> <namespace> -e -- <cmd> <args>...` same, but fail early if any executed command returns a non-zero exit code
+* `kon exec --context-headers <auto|always|never> ...` override the `behavior.print_context_in_exec` setting
+* `kon export <context> <namespace>` print path of the isolated config file for context and namespace
+* `kon info ctx` print name of current context
+* `kon info ns` print name of current namespace
+* `kon info depth` print depth of recursive contexts
+* `kon lint` lint kubeconfig files and report issues
+* `kon edit` display selectable menu of contexts to edit
+* `kon edit <context>` edit the file containing this context
+* `kon edit-config` edit kubie's own config file
+* `kon delete <context>` delete a context, its cluster and its user
+* `kon update` check for a new release and update the local installation
+* `kon generate-completion [SHELL]` generate a completion script for the given shell
 
 ## Completion
 
 Generate completion scripts for supported shells:
 
 ```sh
-source <(kubie generate-completion bash)
-source <(kubie generate-completion zsh)
-kubie generate-completion fish | source
+source <(kon generate-completion bash)
+source <(kon generate-completion zsh)
+kon generate-completion fish | source
 ```
 
 ### Settings

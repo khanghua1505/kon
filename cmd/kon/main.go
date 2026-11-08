@@ -1,4 +1,4 @@
-// Command kubie is a Go port of kubie, a more powerful alternative to
+// Command kon is a Go port of kubie, a more powerful alternative to
 // kubectx and kubens.
 package main
 

@@ -20,7 +20,7 @@ const (
 	goldenConfigPath  = "/tmp/kubie-test/kubeconfig"
 	goldenSessionPath = "/tmp/kubie-test/session.json"
 	goldenStatePath   = "/tmp/kubie-test/state.json"
-	goldenExePath     = "/usr/local/bin/kubie"
+	goldenExePath     = "/usr/local/bin/kon"
 	goldenDepth       = 4
 	goldenParentDepth = goldenDepth - 1
 )
@@ -258,23 +258,23 @@ func TestGeneratePS1PerShell(t *testing.T) {
 	}{
 		{
 			kind: Bash,
-			want: `[\[\e[31m\]$(/usr/local/bin/kubie info ctx)\[\e[0m\]|\[\e[32m\]$(/usr/local/bin/kubie info ns)\[\e[0m\]|\[\e[34m\]4\[\e[0m\]]`,
+			want: `[\[\e[31m\]$(/usr/local/bin/kon info ctx)\[\e[0m\]|\[\e[32m\]$(/usr/local/bin/kon info ns)\[\e[0m\]|\[\e[34m\]4\[\e[0m\]]`,
 		},
 		{
 			kind: Zsh,
-			want: `[%{\e[31m%}$(/usr/local/bin/kubie info ctx)%{\e[0m%}|%{\e[32m%}$(/usr/local/bin/kubie info ns)%{\e[0m%}|%{\e[34m%}4%{\e[0m%}]`,
+			want: `[%{\e[31m%}$(/usr/local/bin/kon info ctx)%{\e[0m%}|%{\e[32m%}$(/usr/local/bin/kon info ns)%{\e[0m%}|%{\e[34m%}4%{\e[0m%}]`,
 		},
 		{
 			kind: Fish,
-			want: `[\e[31m(/usr/local/bin/kubie info ctx)\e[0m|\e[32m(/usr/local/bin/kubie info ns)\e[0m|\e[34m4\e[0m]`,
+			want: `[\e[31m(/usr/local/bin/kon info ctx)\e[0m|\e[32m(/usr/local/bin/kon info ns)\e[0m|\e[34m4\e[0m]`,
 		},
 		{
 			kind: Xonsh,
-			want: `[\033[31m$(/usr/local/bin/kubie info ctx)\033[0m|\033[32m$(/usr/local/bin/kubie info ns)\033[0m|\033[34m4\033[0m]`,
+			want: `[\033[31m$(/usr/local/bin/kon info ctx)\033[0m|\033[32m$(/usr/local/bin/kon info ns)\033[0m|\033[34m4\033[0m]`,
 		},
 		{
 			kind: Nu,
-			want: `[\e[31m$(/usr/local/bin/kubie info ctx)\e[0m|\e[32m$(/usr/local/bin/kubie info ns)\e[0m|\e[34m4\e[0m]`,
+			want: `[\e[31m$(/usr/local/bin/kon info ctx)\e[0m|\e[32m$(/usr/local/bin/kon info ns)\e[0m|\e[34m4\e[0m]`,
 		},
 	}
 

@@ -100,7 +100,7 @@ exit 7
 	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
 
 	oldExecutablePath := executablePath
-	executablePath = func() (string, error) { return "/usr/local/bin/kubie", nil }
+	executablePath = func() (string, error) { return "/usr/local/bin/kon", nil }
 	t.Cleanup(func() { executablePath = oldExecutablePath })
 
 	s, err := settings.Default()
@@ -113,7 +113,7 @@ exit 7
 	info := &spawnInfo{
 		settings: s,
 		envVars:  buildEnvVars(s, Bash, configPath, sessionPath, 2),
-		prompt:   generatePS1(s, 2, Bash, "/usr/local/bin/kubie"),
+		prompt:   generatePS1(s, 2, Bash, "/usr/local/bin/kon"),
 		kind:     Bash,
 	}
 
@@ -182,7 +182,7 @@ printf '%s\n' "$*" >> "` + log + `"
 	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
 
 	oldExecutablePath := executablePath
-	executablePath = func() (string, error) { return "/usr/local/bin/kubie", nil }
+	executablePath = func() (string, error) { return "/usr/local/bin/kon", nil }
 	t.Cleanup(func() { executablePath = oldExecutablePath })
 
 	s, err := settings.Default()
@@ -194,7 +194,7 @@ printf '%s\n' "$*" >> "` + log + `"
 	info := &spawnInfo{
 		settings: s,
 		envVars:  buildEnvVars(s, Bash, filepath.Join(dir, "kubeconfig"), filepath.Join(dir, "session.json"), 1),
-		prompt:   generatePS1(s, 1, Bash, "/usr/local/bin/kubie"),
+		prompt:   generatePS1(s, 1, Bash, "/usr/local/bin/kon"),
 		kind:     Bash,
 	}
 

@@ -11,7 +11,7 @@ const Version = "0.28.0-go"
 // NewRootCmd builds kubie's root command.
 func NewRootCmd() *cobra.Command {
 	root := &cobra.Command{
-		Use:     "kubie",
+		Use:     "kon",
 		Short:   "A more powerful alternative to kubectx and kubens.",
 		Version: Version,
 

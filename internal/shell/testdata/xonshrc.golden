@@ -31,7 +31,7 @@ if Path("~/.config/xonsh/rc.d").is_dir():
 def __kubie_cmd_pre_exec__(cmd):
     $KUBECONFIG = $KUBIE_KUBECONFIG
 
-$KUBIE_PROMPT='[\033[31m$(/usr/local/bin/kubie info ctx)\033[0m|\033[32m$(/usr/local/bin/kubie info ns)\033[0m|\033[34m4\033[0m]'
+$KUBIE_PROMPT='[\033[31m$(/usr/local/bin/kon info ctx)\033[0m|\033[32m$(/usr/local/bin/kon info ns)\033[0m|\033[34m4\033[0m]'
 import re
 
 # Fanciful prompt-command replacement as xonsh forces the use of PROMPT_FIELDS

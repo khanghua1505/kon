@@ -12,8 +12,8 @@ import (
 
 func buildBin(t *testing.T) string {
 	t.Helper()
-	bin := filepath.Join(t.TempDir(), "kubie")
-	if b, err := exec.Command("go", "build", "-o", bin, "..").CombinedOutput(); err != nil {
+	bin := filepath.Join(t.TempDir(), "kon")
+	if b, err := exec.Command("go", "build", "-o", bin, "./kon").CombinedOutput(); err != nil {
 		t.Fatalf("build: %v\n%s", err, b)
 	}
 	return bin
@@ -86,11 +86,11 @@ func TestE2EExportCtx(t *testing.T) {
 	cmdE := exec.CommandContext(ctx, bin, "ctx", "-f", "testdata/e2e/kubeconfig/a.yaml", "ctx-a")
 	cmdE.Env = append(os.Environ(), "HOME="+home, "PATH="+filepath.Dir(bin)+":"+os.Getenv("PATH"), "SHELL=/bin/bash", "KUBIE_PROMPT_DISABLE=1", "KUBIE_DEPTH=0")
 	cmdE.Stdin = strings.NewReader(strings.Join([]string{
-		"kubie info ctx",
-		"kubie info ns",
+		"kon info ctx",
+		"kon info ns",
 		"printf 'DEPTH='",
-		"kubie info depth",
-		"export_path=$(kubie export ctx-a default) || exit 1",
+		"kon info depth",
+		"export_path=$(kon export ctx-a default) || exit 1",
 		`printf 'EXPORT=%s\n' "$export_path"`,
 		`test -f "$export_path" || exit 1`,
 		"exit 0",
@@ -140,10 +140,10 @@ func TestE2ECtxNamespaceRewrite(t *testing.T) {
 	cmd := exec.CommandContext(ctx, bin, "ctx", "-f", "testdata/e2e/kubeconfig/a.yaml", "ctx-a")
 	cmd.Stdin = strings.NewReader(strings.Join([]string{
 		"printf 'BEFORE='",
-		"kubie info ns || exit 1",
-		"kubie ns other-ns || exit 1",
+		"kon info ns || exit 1",
+		"kon ns other-ns || exit 1",
 		"printf 'AFTER='",
-		"kubie info ns || exit 1",
+		"kon info ns || exit 1",
 		"exit 0",
 	}, "\n") + "\n")
 	out, err := cmd.CombinedOutput()

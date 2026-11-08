@@ -91,7 +91,7 @@ setopt PROMPT_SUBST
 
 # This function fixes the prompt via a precmd hook.
 function __kubie_cmd_pre_cmd__() {
-    local KUBIE_PROMPT=$'[%{\e[31m%}$(/usr/local/bin/kubie info ctx)%{\e[0m%}|%{\e[32m%}$(/usr/local/bin/kubie info ns)%{\e[0m%}|%{\e[34m%}4%{\e[0m%}]'
+    local KUBIE_PROMPT=$'[%{\e[31m%}$(/usr/local/bin/kon info ctx)%{\e[0m%}|%{\e[32m%}$(/usr/local/bin/kon info ns)%{\e[0m%}|%{\e[34m%}4%{\e[0m%}]'
 
     # If KUBIE_ZSH_USE_RPS1 is set, we use RPS1 instead of PS1.
     if [[ "$KUBIE_ZSH_USE_RPS1" == "1" ]] ; then

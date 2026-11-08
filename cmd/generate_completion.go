@@ -16,7 +16,7 @@ func newGenerateCompletionCmd() *cobra.Command {
 		Aliases: []string{"generate-completions"},
 		Short:   "Generate a completion script.",
 		Long: "Generate a completion script. Enable completion using\n" +
-			"`source <(kubie generate-completion)`. This can be added to your shell's\n" +
+			"`source <(kon generate-completion)`. This can be added to your shell's\n" +
 			"configuration file to enable completion automatically.",
 		Args:      cobra.MaximumNArgs(1),
 		ValidArgs: []string{"bash", "fish", "powershell", "zsh"},

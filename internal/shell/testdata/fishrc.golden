@@ -33,14 +33,14 @@ if test "$KUBIE_PROMPT_DISABLE" = "0"
 
             # Fish's right prompt does not support newlines, so there's no point in
             # iterating through the (potentially) existing prompt's lines.
-            printf '%s %s' (string unescape [\e[31m(/usr/local/bin/kubie info ctx)\e[0m|\e[32m(/usr/local/bin/kubie info ns)\e[0m|\e[34m4\e[0m]) $original
+            printf '%s %s' (string unescape [\e[31m(/usr/local/bin/kon info ctx)\e[0m|\e[32m(/usr/local/bin/kon info ns)\e[0m|\e[34m4\e[0m]) $original
         end
     else
         functions --copy fish_prompt fish_prompt_original
         function fish_prompt
             set -l original (fish_prompt_original)
 
-            printf '%s ' (string unescape [\e[31m(/usr/local/bin/kubie info ctx)\e[0m|\e[32m(/usr/local/bin/kubie info ns)\e[0m|\e[34m4\e[0m])
+            printf '%s ' (string unescape [\e[31m(/usr/local/bin/kon info ctx)\e[0m|\e[32m(/usr/local/bin/kon info ns)\e[0m|\e[34m4\e[0m])
 
             # Due to idiosyncrasies with the way fish is managing newlines in
             # process substitions, each line needs to be printed separately

@@ -49,6 +49,6 @@ function __kubie_cmd_pre_exec__() {
 
 trap '__kubie_cmd_pre_exec__' DEBUG
 
-KUBIE_PROMPT='[\[\e[31m\]$(/usr/local/bin/kubie info ctx)\[\e[0m\]|\[\e[32m\]$(/usr/local/bin/kubie info ns)\[\e[0m\]|\[\e[34m\]4\[\e[0m\]]'
+KUBIE_PROMPT='[\[\e[31m\]$(/usr/local/bin/kon info ctx)\[\e[0m\]|\[\e[32m\]$(/usr/local/bin/kon info ns)\[\e[0m\]|\[\e[34m\]4\[\e[0m\]]'
 PS1="$KUBIE_PROMPT $PS1"
 unset KUBIE_PROMPT
