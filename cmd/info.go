@@ -15,6 +15,22 @@ func newInfoCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "info",
 		Short: "View info about the current kon shell, such as the context name and the current namespace.",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			contextName, err := infoContextName()
+			if err != nil {
+				return err
+			}
+
+			namespace, err := infoNamespace()
+			if err != nil {
+				return err
+			}
+
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "context: %s\nnamespace: %s\ndepth: %d\n", contextName, namespace, vars.Depth())
+
+			return nil
+		},
 	}
 
 	cmd.AddCommand(newInfoCtxCmd(), newInfoNsCmd(), newInfoDepthCmd())
@@ -29,20 +45,30 @@ func newInfoCtxCmd() *cobra.Command {
 		Short: "Get the current shell's context name.",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if err := vars.EnsureActive(); err != nil {
-				return err
-			}
-
-			config, err := currentConfig()
+			contextName, err := infoContextName()
 			if err != nil {
 				return err
 			}
 
-			_, _ = fmt.Fprintln(cmd.OutOrStdout(), config.CurrentContext)
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), contextName)
 
 			return nil
 		},
 	}
+}
+
+// infoContextName returns the context name of the running kon shell.
+func infoContextName() (string, error) {
+	if err := vars.EnsureActive(); err != nil {
+		return "", err
+	}
+
+	config, err := currentConfig()
+	if err != nil {
+		return "", err
+	}
+
+	return config.CurrentContext, nil
 }
 
 // newInfoNsCmd builds the info ns subcommand.
@@ -52,27 +78,39 @@ func newInfoNsCmd() *cobra.Command {
 		Short: "Get the current shell's namespace.",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if err := vars.EnsureActive(); err != nil {
-				return err
-			}
-
-			config, err := currentConfig()
+			namespace, err := infoNamespace()
 			if err != nil {
 				return err
 			}
-			if len(config.Contexts) == 0 {
-				return errors.New("The current kubeconfig has no contexts")
-			}
 
-			namespace := config.Contexts[0].Context.Namespace
-			if namespace == "" {
-				namespace = "default"
-			}
 			_, _ = fmt.Fprintln(cmd.OutOrStdout(), namespace)
 
 			return nil
 		},
 	}
+}
+
+// infoNamespace returns the namespace of the running kon shell, defaulting
+// to default when the current context has none.
+func infoNamespace() (string, error) {
+	if err := vars.EnsureActive(); err != nil {
+		return "", err
+	}
+
+	config, err := currentConfig()
+	if err != nil {
+		return "", err
+	}
+	if len(config.Contexts) == 0 {
+		return "", errors.New("The current kubeconfig has no contexts")
+	}
+
+	namespace := config.Contexts[0].Context.Namespace
+	if namespace == "" {
+		namespace = "default"
+	}
+
+	return namespace, nil
 }
 
 // newInfoDepthCmd builds the info depth subcommand.

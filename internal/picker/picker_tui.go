@@ -114,12 +114,11 @@ func (m tuiModel) View() tea.View {
 
 	divider := m.dim.Render(strings.Repeat("─", 32))
 	lines := append(
+		rows,
 		[]string{
-			m.title.Render("Select Context"),
-			m.queryS.Render("> " + m.query),
 			divider,
-		},
-		rows...,
+			m.queryS.Render("❯ " + m.query + "▌"),
+		}...,
 	)
 	box := m.border.Render(lipgloss.JoinVertical(lipgloss.Left, lines...))
 	help := m.dim.Render("  ↑/↓ move · enter select · esc cancel")
