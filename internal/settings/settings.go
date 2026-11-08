@@ -1,4 +1,5 @@
-// Package settings loads kubie's own configuration from ~/.kube/kubie.yaml.
+// Package settings loads kon's own configuration from ~/.kube/kon.yaml or
+// ~/.kube/kon.yaml.
 package settings
 
 import (
@@ -13,9 +14,10 @@ import (
 	"github.com/khanghua1505/kon/internal/tty"
 )
 
-const configFileName = "kubie.yaml"
+const configFileName = "kon.yaml"
+const legacyConfigFileName = "kubie.yaml"
 
-// Settings is the parsed ~/.kube/kubie.yaml file.
+// Settings is the parsed ~/.kube/kon.yaml file.
 type Settings struct {
 	Shell         *string
 	DefaultEditor *string
@@ -82,17 +84,22 @@ func Default() (*Settings, error) {
 	}, nil
 }
 
-// Path returns the path of kubie's own config file.
+// Path returns the path of kon's own config file: kon.yaml when it exists,
+// otherwise kubie.yaml for backward compatibility.
 func Path() (string, error) {
 	home, err := homeDir()
 	if err != nil {
 		return "", err
 	}
 
+	kubiePath := filepath.Join(home, ".kube", legacyConfigFileName)
+	if _, err := os.Stat(kubiePath); err == nil {
+		return kubiePath, nil
+	}
 	return filepath.Join(home, ".kube", configFileName), nil
 }
 
-// Load reads kubie's config file, falling back to the defaults when the file
+// Load reads kon's config file, falling back to the defaults when the file
 // does not exist. The config file itself is always excluded from the
 // kubeconfig globs.
 func Load() (*Settings, error) {
@@ -116,7 +123,10 @@ func Load() (*Settings, error) {
 		return nil, err
 	}
 
-	settings.Configs.Exclude = append(settings.Configs.Exclude, path)
+	settings.Configs.Exclude = append(settings.Configs.Exclude,
+		filepath.Join(filepath.Dir(path), configFileName),
+		filepath.Join(filepath.Dir(path), legacyConfigFileName),
+	)
 
 	return settings, nil
 }

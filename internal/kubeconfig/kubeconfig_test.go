@@ -338,8 +338,8 @@ func TestWriteToFilePermissions(t *testing.T) {
 	}
 	defer os.Remove(temp)
 
-	if !strings.HasPrefix(filepath.Base(temp), "kubie-config") || !strings.HasSuffix(temp, ".yaml") {
-		t.Errorf("expected a kubie-config*.yaml temporary file, got %s", temp)
+	if !strings.HasPrefix(filepath.Base(temp), "kon-config") || !strings.HasSuffix(temp, ".yaml") {
+		t.Errorf("expected a kon-config*.yaml temporary file, got %s", temp)
 	}
 
 	info, err = os.Stat(temp)

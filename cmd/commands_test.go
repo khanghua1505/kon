@@ -21,7 +21,7 @@ func writeSettings(t *testing.T, includeGlob string) {
 	}
 
 	content := fmt.Sprintf("configs:\n  include:\n    - %q\n", includeGlob)
-	if err := os.WriteFile(filepath.Join(home, ".kube", "kubie.yaml"), []byte(content), 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(home, ".kube", "kon.yaml"), []byte(content), 0o600); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -37,7 +37,7 @@ func writeSettingsWithBehavior(t *testing.T, includeGlob, printContextInExec str
 	}
 
 	content := fmt.Sprintf("configs:\n  include:\n    - %q\nbehavior:\n  print_context_in_exec: %s\n", includeGlob, printContextInExec)
-	if err := os.WriteFile(filepath.Join(home, ".kube", "kubie.yaml"), []byte(content), 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(home, ".kube", "kon.yaml"), []byte(content), 0o600); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -150,9 +150,9 @@ func TestExecSuccess(t *testing.T) {
 
 func TestExecSetsKubeEnvironmentAndContextHeader(t *testing.T) {
 	writeSettingsWithBehavior(t, "testdata/export/kubeconfig/*.yaml", "always")
-	t.Setenv("KUBIE_DEPTH", "")
+	t.Setenv("KON_DEPTH", "")
 
-	out, err := runRoot(t, "exec", "ctx-a", "my-ns", "--", "sh", "-c", "printf '%s|%s|%s\\n' \"$KUBECONFIG\" \"$KUBIE_ACTIVE\" \"$KUBIE_DEPTH\"")
+	out, err := runRoot(t, "exec", "ctx-a", "my-ns", "--", "sh", "-c", "printf '%s|%s|%s\\n' \"$KUBECONFIG\" \"$KON_ACTIVE\" \"$KON_DEPTH\"")
 	if err != nil {
 		t.Fatalf("exec failed: %v", err)
 	}
@@ -185,15 +185,15 @@ func TestExecSetsKubeEnvironmentAndContextHeader(t *testing.T) {
 	}
 
 	if active != "1" {
-		t.Fatalf("expected KUBIE_ACTIVE=1, got %q", active)
+		t.Fatalf("expected KON_ACTIVE=1, got %q", active)
 	}
 
 	if depth != "1" {
-		t.Fatalf("expected KUBIE_DEPTH=1, got %q", depth)
+		t.Fatalf("expected KON_DEPTH=1, got %q", depth)
 	}
 
 	base := filepath.Base(kubeconfigPath)
-	if !strings.HasPrefix(base, "kubie-config") || !strings.HasSuffix(base, ".yaml") {
+	if !strings.HasPrefix(base, "kon-config") || !strings.HasSuffix(base, ".yaml") {
 		t.Fatalf("unexpected KUBECONFIG path %q", kubeconfigPath)
 	}
 }

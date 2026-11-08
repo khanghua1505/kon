@@ -229,7 +229,7 @@ func TestSave(t *testing.T) {
 
 		current := session.Session{}
 		if err := current.Save(); err == nil {
-			t.Fatal("Save() = nil, want error when KUBIE_SESSION is missing")
+			t.Fatal("Save() = nil, want error when KON_SESSION is missing")
 		}
 	})
 
@@ -318,7 +318,7 @@ func TestAddHistoryEntry(t *testing.T) {
 func TestRecordContextEntry(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv(vars.EnvSession, filepath.Join(dir, "session.json"))
-	t.Setenv("KUBIE_STATE", filepath.Join(dir, "state.json"))
+	t.Setenv("KON_STATE", filepath.Join(dir, "state.json"))
 
 	current := session.Session{}
 	if err := current.RecordContextEntry("ctx", namespace("team")); err != nil {

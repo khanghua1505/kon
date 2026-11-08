@@ -162,8 +162,8 @@ func TestRCFileGoldens(t *testing.T) {
 
 			env := renderEnv(info.envVars)
 			for _, want := range []string{
-				"KUBIE_KUBECONFIG=" + goldenConfigPath + "\n",
-				"KUBIE_DEPTH=" + strconv.Itoa(goldenDepth) + "\n",
+				"KON_KUBECONFIG=" + goldenConfigPath + "\n",
+				"KON_DEPTH=" + strconv.Itoa(goldenDepth) + "\n",
 			} {
 				if !strings.Contains(env, want) {
 					t.Errorf("%s environment misses %q", tc.kind, want)
@@ -194,6 +194,17 @@ func TestBuildEnvVarsPerShell(t *testing.T) {
 
 			want := map[string]string{
 				"KUBECONFIG":                   goldenConfigPath,
+				"KON_ACTIVE":                   "1",
+				"KON_DEPTH":                    strconv.Itoa(depth),
+				"KON_KUBECONFIG":               goldenConfigPath,
+				"KON_SESSION":                  goldenSessionPath,
+				"KON_KUBE_CONFIG":              goldenConfigPath,
+				"KON_STATE":                    goldenStatePath,
+				"KON_PROMPT_DISABLE":           "0",
+				"KON_ZSH_USE_RPS1":             "0",
+				"KON_FISH_USE_RPROMPT":         "0",
+				"KON_XONSH_USE_RIGHT_PROMPT":   "0",
+				"KON_SHELL":                    kind.String(),
 				"KUBIE_ACTIVE":                 "1",
 				"KUBIE_DEPTH":                  strconv.Itoa(depth),
 				"KUBIE_KUBECONFIG":             goldenConfigPath,
@@ -306,14 +317,14 @@ func TestGeneratePS1PerShell(t *testing.T) {
 
 	t.Run("disabled prompt drops the prompt from the startup script", func(t *testing.T) {
 		disabled := &settings.Settings{Prompt: settings.Prompt{Disable: true}}
-		info := &spawnInfo{settings: disabled, prompt: "KUBIE_PROMPT"}
+		info := &spawnInfo{settings: disabled, prompt: "KON_PROMPT"}
 
 		for name, content := range map[string]string{
 			"bash":  bashRCContent(info),
 			"zsh":   zshRCContent(info),
 			"xonsh": xonshRCContent(info),
 		} {
-			if strings.Contains(content, "KUBIE_PROMPT") {
+			if strings.Contains(content, "KON_PROMPT") {
 				t.Errorf("%s startup script keeps the prompt", name)
 			}
 		}

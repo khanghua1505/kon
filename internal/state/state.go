@@ -1,7 +1,7 @@
 // Package state stores the kubie state that is shared between all shells.
 //
 // It mirrors /tmp/kubie-src/src/state.rs: the state file is referenced by
-// $KUBIE_STATE, guarded by an exclusive file lock and rewritten atomically.
+// $KON_STATE, guarded by an exclusive file lock and rewritten atomically.
 package state
 
 import (
@@ -14,7 +14,7 @@ import (
 )
 
 // EnvState is the environment variable holding the path of the state file.
-const EnvState = "KUBIE_STATE"
+const EnvState = "KON_STATE"
 
 // lockFileName matches the lock file name used by the Rust implementation.
 const lockFileName = ".state.json.lock"
@@ -29,11 +29,11 @@ type State struct {
 	NamespaceHistory map[string]*string `json:"namespace_history"`
 }
 
-// Path returns the path of the state file referenced by $KUBIE_STATE.
+// Path returns the path of the state file referenced by $KON_STATE.
 func Path() (string, error) {
 	path, ok := os.LookupEnv(EnvState)
 	if !ok || path == "" {
-		return "", errors.New("KUBIE_STATE env variable missing")
+		return "", errors.New("KON_STATE env variable missing")
 	}
 	return path, nil
 }

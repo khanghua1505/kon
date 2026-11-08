@@ -9,16 +9,16 @@ import (
 // bashRCBase is the part of the bash rc file that loads the user startup
 // files and installs the hook which restores KUBECONFIG before every command.
 const bashRCBase = `
-KUBIE_LOGIN_SHELL=0
+KON_LOGIN_SHELL=0
 if [[ "$OSTYPE" == "darwin"* ]] ; then
-    KUBIE_LOGIN_SHELL=1
+    KON_LOGIN_SHELL=1
 fi
 
 # Reference for loading behavior
 # https://shreevatsa.wordpress.com/2008/03/30/zshbash-startup-files-loading-order-bashrc-zshrc-etc/
 
 
-if [[ "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+if [[ "$KON_LOGIN_SHELL" == "1" ]] ; then
     if [[ -f "/etc/profile" ]] ; then
         source "/etc/profile"
     fi
@@ -41,7 +41,7 @@ else
 fi
 
 function __kubie_cmd_pre_exec__() {
-    export KUBECONFIG="$KUBIE_KUBECONFIG"
+    export KUBECONFIG="$KON_KUBECONFIG"
 }
 
 trap '__kubie_cmd_pre_exec__' DEBUG
@@ -49,9 +49,9 @@ trap '__kubie_cmd_pre_exec__' DEBUG
 
 // bashRCPrompt is the part of the bash rc file that installs the kubie prompt.
 const bashRCPrompt = `
-KUBIE_PROMPT='%%PROMPT%%'
-PS1="$KUBIE_PROMPT $PS1"
-unset KUBIE_PROMPT
+KON_PROMPT='%%PROMPT%%'
+PS1="$KON_PROMPT $PS1"
+unset KON_PROMPT
 `
 
 // bashRCContent returns the content of the rc file handed to bash.

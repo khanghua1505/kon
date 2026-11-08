@@ -14,7 +14,7 @@ import (
 func newInfoCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "info",
-		Short: "View info about the current kubie shell, such as the context name and the current namespace.",
+		Short: "View info about the current kon shell, such as the context name and the current namespace.",
 	}
 
 	cmd.AddCommand(newInfoCtxCmd(), newInfoNsCmd(), newInfoDepthCmd())
@@ -93,11 +93,11 @@ func newInfoDepthCmd() *cobra.Command {
 	}
 }
 
-// currentConfig reads the kubeconfig of the running kubie shell.
+// currentConfig reads the kubeconfig of the running kon shell.
 func currentConfig() (*kubeconfig.KubeConfig, error) {
 	path, ok := vars.KubeconfigPath()
 	if !ok {
-		return nil, errors.New("KUBIE_KUBECONFIG env variable missing")
+		return nil, errors.New("KON_KUBECONFIG env variable missing")
 	}
 
 	return kubeconfig.Load(path)

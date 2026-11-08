@@ -58,7 +58,7 @@ func GetNamespacesContext(ctx context.Context, opts Options) ([]string, error) {
 		var ok bool
 		kubeconfigPath, ok = vars.KubeconfigPath()
 		if !ok {
-			return nil, fmt.Errorf("KUBIE_KUBECONFIG env variable missing")
+			return nil, fmt.Errorf("KON_KUBECONFIG env variable missing")
 		}
 	}
 

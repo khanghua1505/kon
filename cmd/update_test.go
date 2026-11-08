@@ -23,25 +23,24 @@ func TestUpdateReportsUpToDate(t *testing.T) {
 		t.Fatalf("update failed: %v", err)
 	}
 
-	if !strings.Contains(out, "Kubie is up-to-date : v"+Version) {
+	if !strings.Contains(out, "Kon is up-to-date : v"+Version) {
 		t.Fatalf("unexpected update output: %q", out)
 	}
 }
 
-func TestReleaseBinaryName(t *testing.T) {
+func TestReleaseAssetName(t *testing.T) {
 	cases := map[string]string{
-		"linux/amd64":   "kubie-linux-amd64",
-		"linux/arm":     "kubie-linux-arm32",
-		"linux/arm64":   "kubie-linux-arm64",
-		"darwin/amd64":  "kubie-darwin-amd64",
-		"darwin/arm64":  "kubie-darwin-arm64",
-		"windows/amd64": "kubie-windows-amd64",
+		"linux/amd64":   "kon_0.28.0-go_linux_amd64.tar.gz",
+		"linux/arm64":   "kon_0.28.0-go_linux_arm64.tar.gz",
+		"darwin/amd64":  "kon_0.28.0-go_darwin_amd64.tar.gz",
+		"darwin/arm64":  "kon_0.28.0-go_darwin_arm64.tar.gz",
+		"windows/amd64": "kon_0.28.0-go_windows_amd64.tar.gz",
 	}
 
 	for platform, want := range cases {
-		got := releaseBinaryName(platform[:strings.Index(platform, "/")], platform[strings.Index(platform, "/")+1:])
+		got := releaseAssetName("v0.28.0-go", platform[:strings.Index(platform, "/")], platform[strings.Index(platform, "/")+1:])
 		if got != want {
-			t.Fatalf("releaseBinaryName(%q) = %q, want %q", platform, got, want)
+			t.Fatalf("releaseAssetName(%q) = %q, want %q", platform, got, want)
 		}
 	}
 }

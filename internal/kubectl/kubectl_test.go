@@ -20,8 +20,8 @@ func writeKubectlShim(t *testing.T, dir, table string) string {
 
 	path := filepath.Join(dir, "kubectl")
 	script := "#!/bin/sh\n" +
-		"if [ -n \"$KUBIE_TEST_CAPTURE\" ]; then\n" +
-		"  { printf 'KUBECONFIG=%s\\n' \"$KUBECONFIG\"; printf 'KUBIE_KUBECONFIG=%s\\n' \"$KUBIE_KUBECONFIG\"; } > \"$KUBIE_TEST_CAPTURE\"\n" +
+		"if [ -n \"$KON_TEST_CAPTURE\" ]; then\n" +
+		"  { printf 'KUBECONFIG=%s\\n' \"$KUBECONFIG\"; printf 'KON_KUBECONFIG=%s\\n' \"$KON_KUBECONFIG\"; } > \"$KON_TEST_CAPTURE\"\n" +
 		"fi\n" +
 		"cat <<'TABLE'\n" + table + "TABLE\n"
 
@@ -46,7 +46,7 @@ func TestGetNamespacesContextParsesNamespaceTable(t *testing.T) {
 	dir := t.TempDir()
 	writeKubectlShim(t, dir, namespaceTable)
 	installShim(t, dir)
-	t.Setenv("KUBIE_KUBECONFIG", filepath.Join(dir, "kubeconfig.yaml"))
+	t.Setenv("KON_KUBECONFIG", filepath.Join(dir, "kubeconfig.yaml"))
 
 	namespaces, err := GetNamespacesContext(context.Background(), Options{})
 	if err != nil {
@@ -63,7 +63,7 @@ func TestGetNamespacesContextKeepsRowsAfterHeader(t *testing.T) {
 	dir := t.TempDir()
 	writeKubectlShim(t, dir, "NAME\n----\ndefault\nkube-system\n")
 	installShim(t, dir)
-	t.Setenv("KUBIE_KUBECONFIG", filepath.Join(dir, "kubeconfig.yaml"))
+	t.Setenv("KON_KUBECONFIG", filepath.Join(dir, "kubeconfig.yaml"))
 
 	namespaces, err := GetNamespacesContext(context.Background(), Options{})
 	if err != nil {
@@ -86,10 +86,10 @@ func TestGetNamespacesContextUsesKubieKubeconfigEnv(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Setenv("KUBIE_KUBECONFIG", kubeconfigPath)
+	t.Setenv("KON_KUBECONFIG", kubeconfigPath)
 
 	capture := filepath.Join(dir, "capture.txt")
-	t.Setenv("KUBIE_TEST_CAPTURE", capture)
+	t.Setenv("KON_TEST_CAPTURE", capture)
 
 	if _, err := GetNamespacesContext(context.Background(), Options{}); err != nil {
 		t.Fatalf("get namespaces failed: %v", err)
@@ -100,7 +100,7 @@ func TestGetNamespacesContextUsesKubieKubeconfigEnv(t *testing.T) {
 		t.Fatalf("kubectl shim did not record the environment: %v", err)
 	}
 
-	want := "KUBECONFIG=" + kubeconfigPath + "\nKUBIE_KUBECONFIG=" + kubeconfigPath + "\n"
+	want := "KUBECONFIG=" + kubeconfigPath + "\nKON_KUBECONFIG=" + kubeconfigPath + "\n"
 	if string(data) != want {
 		t.Fatalf("unexpected kubectl environment\n--- got ---\n%s--- want ---\n%s", data, want)
 	}
@@ -112,10 +112,10 @@ func TestGetNamespacesContextRemovesTemporaryKubeconfig(t *testing.T) {
 	installShim(t, dir)
 
 	envPath := filepath.Join(dir, "kubeconfig.yaml")
-	t.Setenv("KUBIE_KUBECONFIG", envPath)
+	t.Setenv("KON_KUBECONFIG", envPath)
 
 	capture := filepath.Join(dir, "capture.txt")
-	t.Setenv("KUBIE_TEST_CAPTURE", capture)
+	t.Setenv("KON_TEST_CAPTURE", capture)
 
 	config := &kubeconfig.KubeConfig{APIVersion: "v1", Kind: "Config"}
 	if _, err := GetNamespacesContext(context.Background(), Options{Config: config}); err != nil {

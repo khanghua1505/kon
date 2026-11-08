@@ -2,12 +2,12 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-// RegisterCommands adds the ported commands to the root command.
-//
-// It lives in its own file so other ports can register their commands without
-// touching root.go.
+// RegisterCommands adds the commands to the root command.
 func RegisterCommands(root *cobra.Command) {
 	root.AddCommand(
+		newCtxCmd(),
+		newNsCmd(),
+		newInfoCmd(),
 		newExecCmd(),
 		newLintCmd(),
 		newEditCmd(),
@@ -15,5 +15,6 @@ func RegisterCommands(root *cobra.Command) {
 		newDeleteCmd(),
 		newExportCmd(),
 		newUpdateCmd(),
+		newGenerateCompletionCmd(),
 	)
 }

@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -8,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -31,7 +34,7 @@ type githubRelease struct {
 func newUpdateCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "update",
-		Short: "Update kubie to the latest release.",
+		Short: "Update kon to the latest release.",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runUpdate(cmd)
@@ -48,15 +51,15 @@ func runUpdate(cmd *cobra.Command) error {
 	}
 
 	if release.TagName == "v"+Version {
-		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Kubie is up-to-date : v%s\n", Version)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Kon is up-to-date : v%s\n", Version)
 		return nil
 	}
 
-	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "A new version of Kubie is available (%s), the new version will be installed by replacing this binary.\n", release.TagName)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "A new version of Kon is available (%s), the new version will be installed by replacing this binary.\n", release.TagName)
 
 	url := ""
 	for _, asset := range release.Assets {
-		if asset.Name == releaseBinaryName(runtime.GOOS, runtime.GOARCH) {
+		if asset.Name == releaseAssetName(release.TagName, runtime.GOOS, runtime.GOARCH) {
 			url = asset.BrowserDownloadURL
 			break
 		}
@@ -77,7 +80,7 @@ func runUpdate(cmd *cobra.Command) error {
 		return err
 	}
 
-	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Kubie has been updated successfully: %s\n", executable)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Kon has been updated successfully: %s\n", executable)
 
 	return nil
 }
@@ -105,20 +108,34 @@ func fetchLatestRelease(client *http.Client, url string) (*githubRelease, error)
 	return &release, nil
 }
 
-func releaseBinaryName(goos, goarch string) string {
-	switch goos + "/" + goarch {
-	case "linux/amd64":
-		return "kubie-linux-amd64"
-	case "linux/arm":
-		return "kubie-linux-arm32"
-	case "linux/arm64":
-		return "kubie-linux-arm64"
-	case "darwin/amd64":
-		return "kubie-darwin-amd64"
-	case "darwin/arm64":
-		return "kubie-darwin-arm64"
-	default:
-		return "kubie-" + goos + "-" + goarch
+// releaseAssetName builds the tar.gz asset name goreleaser publishes:
+// kon_<version-without-v>_<goos>_<goarch>.tar.gz.
+func releaseAssetName(tag, goos, goarch string) string {
+	return fmt.Sprintf("kon_%s_%s_%s.tar.gz", strings.TrimPrefix(tag, "v"), goos, goarch)
+}
+
+// extractBinary reads a goreleaser tar.gz release archive and copies the kon
+// binary member to dst.
+func extractBinary(archive io.Reader, dst io.Writer) error {
+	gz, err := gzip.NewReader(archive)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = gz.Close() }()
+
+	reader := tar.NewReader(gz)
+	for {
+		header, err := reader.Next()
+		if err == io.EOF {
+			return fmt.Errorf("no kon binary found in release archive")
+		}
+		if err != nil {
+			return err
+		}
+		if header.Typeflag == tar.TypeReg && filepath.Base(header.Name) == "kon" {
+			_, err := io.Copy(dst, reader)
+			return err
+		}
 	}
 }
 
@@ -133,14 +150,14 @@ func replaceExecutable(path, url string, client *http.Client) error {
 		return fmt.Errorf("could not download %s: %s", url, response.Status)
 	}
 
-	temp, err := os.CreateTemp(filepath.Dir(path), ".kubie-update-*")
+	temp, err := os.CreateTemp(filepath.Dir(path), ".kon-update-*")
 	if err != nil {
 		return err
 	}
 	tempName := temp.Name()
 	defer func() { _ = os.Remove(tempName) }()
 
-	if _, err := io.Copy(temp, response.Body); err != nil {
+	if err := extractBinary(response.Body, temp); err != nil {
 		_ = temp.Close()
 		return err
 	}

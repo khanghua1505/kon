@@ -26,28 +26,28 @@ if Path("~/.config/xonsh/rc.d").is_dir():
 
 @events.on_precommand
 def __kubie_cmd_pre_exec__(cmd):
-    $KUBECONFIG = $KUBIE_KUBECONFIG
+    $KUBECONFIG = $KON_KUBECONFIG
 `
 
 // xonshRCPrompt is the part of the xonsh rc file that installs the kubie
 // prompt.
 const xonshRCPrompt = `
-$KUBIE_PROMPT='%%PROMPT%%'
+$KON_PROMPT='%%PROMPT%%'
 import re
 
 # Fanciful prompt-command replacement as xonsh forces the use of PROMPT_FIELDS
-for match in re.finditer(r'\$\(([^)]*)\)', $KUBIE_PROMPT):
+for match in re.finditer(r'\$\(([^)]*)\)', $KON_PROMPT):
     command = match.group(1)
     name = command.split().pop()
     $PROMPT_FIELDS[name] = evalx(f'lambda: $({command}).strip()')
-    $KUBIE_PROMPT = $KUBIE_PROMPT.replace(f'$({command})', '{' + name + '}')
+    $KON_PROMPT = $KON_PROMPT.replace(f'$({command})', '{' + name + '}')
 
-if $KUBIE_XONSH_USE_RIGHT_PROMPT == "1":
-    $RIGHT_PROMPT = $KUBIE_PROMPT + $RIGHT_PROMPT
+if $KON_XONSH_USE_RIGHT_PROMPT == "1":
+    $RIGHT_PROMPT = $KON_PROMPT + $RIGHT_PROMPT
 else:
-    $PROMPT = $KUBIE_PROMPT + $PROMPT
+    $PROMPT = $KON_PROMPT + $PROMPT
 
-del $KUBIE_PROMPT
+del $KON_PROMPT
 `
 
 // xonshRCContent returns the content of the rc file handed to xonsh.

@@ -103,8 +103,8 @@ func TestEnsureActive(t *testing.T) {
 			if err == nil {
 				t.Fatal("EnsureActive() = nil, want error")
 			}
-			if err.Error() != "Not in kubie shell!" {
-				t.Fatalf("EnsureActive() error = %q, want %q", err.Error(), "Not in kubie shell!")
+			if err.Error() != "Not in kon shell!" {
+				t.Fatalf("EnsureActive() error = %q, want %q", err.Error(), "Not in kon shell!")
 			}
 		})
 	}

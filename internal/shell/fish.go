@@ -10,15 +10,15 @@ const fishScript = `
 # Set the proper KUBECONFIG variable before each command runs,
 # to prevent the user from overwriting it.
 function kubie_preexec --on-event fish_preexec
-    set -xg KUBECONFIG "$KUBIE_KUBECONFIG"
+    set -xg KUBECONFIG "$KON_KUBECONFIG"
 end
 
-if test "$KUBIE_PROMPT_DISABLE" = "0"
+if test "$KON_PROMPT_DISABLE" = "0"
     # The general idea behind the prompt substitions is to save the existing
     # prompt's output _before_ anything else is run. This is important since the
     # existing prompt might be dependent on say the status of the executed command.
 
-    if test "$KUBIE_FISH_USE_RPROMPT" = "1"
+    if test "$KON_FISH_USE_RPROMPT" = "1"
         functions -q fish_right_prompt
         and functions --copy fish_right_prompt fish_right_prompt_original
         or function fish_right_prompt_original; end

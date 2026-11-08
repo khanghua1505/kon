@@ -2,7 +2,7 @@
 // shell.
 //
 // It mirrors /tmp/kubie-src/src/session.rs: the history lives in the JSON file
-// referenced by $KUBIE_SESSION.
+// referenced by $KON_SESSION.
 package session
 
 import (
@@ -26,7 +26,7 @@ type Session struct {
 	History []HistoryEntry `json:"history"`
 }
 
-// Load reads the session file referenced by $KUBIE_SESSION. A missing session
+// Load reads the session file referenced by $KON_SESSION. A missing session
 // file yields an empty session, a malformed one an error.
 func Load() (Session, error) {
 	sessionPath, ok := vars.SessionPath()
@@ -49,11 +49,11 @@ func Load() (Session, error) {
 	return loaded, nil
 }
 
-// Save writes the session to the file referenced by $KUBIE_SESSION.
+// Save writes the session to the file referenced by $KON_SESSION.
 func (s *Session) Save() error {
 	sessionPath, ok := vars.SessionPath()
 	if !ok {
-		return errors.New("KUBIE_SESSION env variable missing")
+		return errors.New("KON_SESSION env variable missing")
 	}
 	if s.History == nil {
 		s.History = []HistoryEntry{}
