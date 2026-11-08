@@ -74,6 +74,7 @@ a terminal, show a terminal list prompt, then print a numbered list for non-inte
 * `kon edit <context>` edit the file that contains this context
 * `kon edit-config` edit kon's own config file
 * `kon delete <context>` delete a context, its cluster and its user
+* `kon info` print context, namespace and depth of the current kon shell
 * `kon info ctx` print name of current context
 * `kon info ns` print name of current namespace
 * `kon info depth` print depth of recursive contexts
