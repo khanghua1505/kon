@@ -70,14 +70,10 @@ func runCtx(cmd *cobra.Command, opts *ctxOptions, args []string) error {
 		if len(names) == 0 {
 			return errors.New("No contexts found")
 		}
-		mode := picker.ModeAuto
-		if cfg.Tui {
-			mode = picker.ModeTui
-		}
 		result, selected, err := picker.SelectWithOptions(names, picker.Options{
-			Mode: mode,
-			In:   cmd.InOrStdin(),
-			Out:  cmd.OutOrStdout(),
+			Tui: cfg.Tui,
+			In:  cmd.InOrStdin(),
+			Out: cmd.OutOrStdout(),
 		})
 		if err != nil {
 			return err

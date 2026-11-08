@@ -1,0 +1,36 @@
+Row 4 acceptance evidence
+worktree: /Users/khanghua/Workspace/github.com/khanghua1505/kubie-wt/tui-row4
+branch: lane/row4
+base: 570ef95
+
+$ gofmt -l cmd/
+exit=0
+(no output)
+
+$ go build ./...
+exit=0
+(no output)
+
+$ go test -count=1 ./cmd/... ./internal/...
+exit=0
+ok  	github.com/khanghua1505/kon/cmd	3.557s
+?   	github.com/khanghua1505/kon/cmd/kon	[no test files]
+ok  	github.com/khanghua1505/kon/internal/kubeconfig	0.278s
+ok  	github.com/khanghua1505/kon/internal/kubectl	0.575s
+ok  	github.com/khanghua1505/kon/internal/picker	0.261s
+ok  	github.com/khanghua1505/kon/internal/session	0.252s
+ok  	github.com/khanghua1505/kon/internal/settings	0.277s
+ok  	github.com/khanghua1505/kon/internal/shell	1.050s
+ok  	github.com/khanghua1505/kon/internal/state	0.281s
+?   	github.com/khanghua1505/kon/internal/tty	[no test files]
+ok  	github.com/khanghua1505/kon/internal/tui/style	0.149s
+ok  	github.com/khanghua1505/kon/internal/vars	0.145s
+
+$ go vet ./...
+exit=0
+(no output)
+
+$ grep -rn "Mode" cmd/ --include=*.go
+exit=1
+(no output)
+

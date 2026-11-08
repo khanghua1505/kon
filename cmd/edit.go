@@ -160,9 +160,9 @@ func selectContext(cmd *cobra.Command, installed *kubeconfig.Installed, config *
 	}
 
 	result, selected, err := picker.SelectWithOptions(names, picker.Options{
-		Mode: picker.ModeAuto,
-		In:   cmd.InOrStdin(),
-		Out:  cmd.OutOrStdout(),
+		Tui: config.Tui,
+		In:  cmd.InOrStdin(),
+		Out: cmd.OutOrStdout(),
 	})
 	if err != nil {
 		return "", err
