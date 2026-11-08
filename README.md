@@ -1,5 +1,11 @@
 # kon (Go port of kubie)
 
+<p align="center">
+  <a href="https://www.zerochan.net/1115386">
+    <img src="https://s3.zerochan.net/Kon.%28BLEACH%29.240.1115386.avif" alt="Kon (BLEACH)" width="240" />
+  </a>
+</p>
+
 `kon` is a Go port of [kubie](https://github.com/kubie-org/kubie), a more powerful
 alternative to `kubectx` and `kubens`. It switches Kubernetes contexts and namespaces
 in a shell-independent way, and adds commands to run one-off commands against a
