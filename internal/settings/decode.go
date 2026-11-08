@@ -27,14 +27,13 @@ const (
 
 func (s *Settings) UnmarshalYAML(value *yaml.Node) error {
 	type raw struct {
-		Shell         *string   `yaml:"shell"`
-		DefaultEditor *string   `yaml:"default_editor"`
-		Tui           *bool     `yaml:"tui"`
-		Configs       *Configs  `yaml:"configs"`
-		Prompt        *Prompt   `yaml:"prompt"`
-		Behavior      *Behavior `yaml:"behavior"`
-		Hooks         *Hooks    `yaml:"hooks"`
-		Fzf           *Fzf      `yaml:"fzf"`
+		Shell         *string       `yaml:"shell"`
+		DefaultEditor *string       `yaml:"default_editor"`
+		Tui           *TuiSettings  `yaml:"tui"`
+		Configs       *Configs      `yaml:"configs"`
+		Prompt        *Prompt       `yaml:"prompt"`
+		Behavior      *Behavior     `yaml:"behavior"`
+		Hooks         *Hooks        `yaml:"hooks"`
 	}
 
 	var parsed raw
@@ -74,10 +73,6 @@ func (s *Settings) UnmarshalYAML(value *yaml.Node) error {
 
 	if parsed.Hooks != nil {
 		s.Hooks = *parsed.Hooks
-	}
-
-	if parsed.Fzf != nil {
-		s.Fzf = *parsed.Fzf
 	}
 
 	return nil
@@ -206,53 +201,37 @@ func (h *Hooks) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
-func (f *Fzf) UnmarshalYAML(value *yaml.Node) error {
-	type raw struct {
-		Mouse      *bool   `yaml:"mouse"`
-		Reverse    *bool   `yaml:"reverse"`
-		IgnoreCase *bool   `yaml:"ignore_case"`
-		InfoHidden *bool   `yaml:"info_hidden"`
-		Height     *string `yaml:"height"`
-		Prompt     *string `yaml:"prompt"`
-		Color      *string `yaml:"color"`
+func (t *TuiSettings) UnmarshalYAML(value *yaml.Node) error {
+	*t = TuiSettings{Enabled: true}
+
+	if value.Kind == yaml.ScalarNode {
+		var enabled bool
+		if err := value.Decode(&enabled); err != nil {
+			return fmt.Errorf("could not parse tui: %w", err)
+		}
+		t.Enabled = enabled
+		return nil
 	}
 
-	var parsed raw
-	if err := value.Decode(&parsed); err != nil {
-		return err
+	if value.Kind == yaml.MappingNode {
+		type raw struct {
+			Enabled       *bool   `yaml:"enabled"`
+			SelectedColor *string `yaml:"selected_color"`
+			BorderColor   *string `yaml:"border_color"`
+		}
+		var parsed raw
+		if err := value.Decode(&parsed); err != nil {
+			return fmt.Errorf("could not parse tui: %w", err)
+		}
+		if parsed.Enabled != nil {
+			t.Enabled = *parsed.Enabled
+		}
+		t.SelectedColor = parsed.SelectedColor
+		t.BorderColor = parsed.BorderColor
+		return nil
 	}
 
-	*f = Fzf{Mouse: true}
-
-	if parsed.Mouse != nil {
-		f.Mouse = *parsed.Mouse
-	}
-
-	if parsed.Reverse != nil {
-		f.Reverse = *parsed.Reverse
-	}
-
-	if parsed.IgnoreCase != nil {
-		f.IgnoreCase = *parsed.IgnoreCase
-	}
-
-	if parsed.InfoHidden != nil {
-		f.InfoHidden = *parsed.InfoHidden
-	}
-
-	if parsed.Height != nil {
-		f.Height = parsed.Height
-	}
-
-	if parsed.Prompt != nil {
-		f.Prompt = parsed.Prompt
-	}
-
-	if parsed.Color != nil {
-		f.Color = parsed.Color
-	}
-
-	return nil
+	return fmt.Errorf("could not parse tui: expected bool or map")
 }
 
 func (v *ValidateNamespaces) UnmarshalYAML(value *yaml.Node) error {

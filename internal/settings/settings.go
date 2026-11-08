@@ -21,12 +21,37 @@ const legacyConfigFileName = "kubie.yaml"
 type Settings struct {
 	Shell         *string
 	DefaultEditor *string
-	Tui           bool
+	Tui           TuiSettings
 	Configs       Configs
 	Prompt        Prompt
 	Behavior      Behavior
 	Hooks         Hooks
-	Fzf           Fzf
+}
+
+// TuiSettings holds the TUI picker options. It decodes from both a scalar
+// bool (tui: true) and a map (tui: {selected_color: pink}).
+type TuiSettings struct {
+	Enabled       bool
+	SelectedColor *string
+	BorderColor   *string
+}
+
+// IsEnabled reports whether the TUI picker is enabled.
+func (t TuiSettings) IsEnabled() bool {
+	return t.Enabled
+}
+
+// ColorValues returns the selected and border colors, defaulting to 212/238.
+// Unresolvable names fall back at the picker site, never here.
+func (t TuiSettings) ColorValues() (selected, border string) {
+	selected, border = "212", "238"
+	if t.SelectedColor != nil && *t.SelectedColor != "" {
+		selected = *t.SelectedColor
+	}
+	if t.BorderColor != nil && *t.BorderColor != "" {
+		border = *t.BorderColor
+	}
+	return selected, border
 }
 
 // Configs holds the kubeconfig file globs.
@@ -57,17 +82,6 @@ type Hooks struct {
 	StopCtx  string
 }
 
-// Fzf holds the dropdown menu options.
-type Fzf struct {
-	Mouse      bool
-	Reverse    bool
-	IgnoreCase bool
-	InfoHidden bool
-	Height     *string
-	Prompt     *string
-	Color      *string
-}
-
 // Default returns the settings kubie uses when no config file exists.
 func Default() (*Settings, error) {
 	home, err := homeDir()
@@ -81,7 +95,7 @@ func Default() (*Settings, error) {
 			ValidateNamespaces: ValidateNamespacesTrue,
 			PrintContextInExec: ContextHeaderAuto,
 		},
-		Fzf: Fzf{Mouse: true},
+		Tui: TuiSettings{Enabled: true},
 	}, nil
 }
 
