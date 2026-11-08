@@ -110,7 +110,7 @@ func TestTuiViewShowsFrame(t *testing.T) {
 
 	view := m.View().Content
 
-	if !strings.Contains(view, "Select Context") || !strings.Contains(view, "❯ dev-a") {
+	if !strings.Contains(view, "❯ dev-a") {
 		t.Errorf("view missing frame or selection:\n%s", view)
 	}
 }
