@@ -27,13 +27,13 @@ const (
 
 func (s *Settings) UnmarshalYAML(value *yaml.Node) error {
 	type raw struct {
-		Shell         *string   `yaml:"shell"`
-		DefaultEditor *string   `yaml:"default_editor"`
-		Configs       *Configs  `yaml:"configs"`
-		Prompt        *Prompt   `yaml:"prompt"`
-		Behavior      *Behavior `yaml:"behavior"`
-		Hooks         *Hooks    `yaml:"hooks"`
-		Fzf           *Fzf      `yaml:"fzf"`
+		Shell         *string      `yaml:"shell"`
+		DefaultEditor *string      `yaml:"default_editor"`
+		Tui           *TuiSettings `yaml:"tui"`
+		Configs       *Configs     `yaml:"configs"`
+		Prompt        *Prompt      `yaml:"prompt"`
+		Behavior      *Behavior    `yaml:"behavior"`
+		Hooks         *Hooks       `yaml:"hooks"`
 	}
 
 	var parsed raw
@@ -55,6 +55,10 @@ func (s *Settings) UnmarshalYAML(value *yaml.Node) error {
 		s.DefaultEditor = parsed.DefaultEditor
 	}
 
+	if parsed.Tui != nil {
+		s.Tui = *parsed.Tui
+	}
+
 	if parsed.Configs != nil {
 		s.Configs = *parsed.Configs
 	}
@@ -69,10 +73,6 @@ func (s *Settings) UnmarshalYAML(value *yaml.Node) error {
 
 	if parsed.Hooks != nil {
 		s.Hooks = *parsed.Hooks
-	}
-
-	if parsed.Fzf != nil {
-		s.Fzf = *parsed.Fzf
 	}
 
 	return nil
@@ -201,52 +201,11 @@ func (h *Hooks) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
-func (f *Fzf) UnmarshalYAML(value *yaml.Node) error {
-	type raw struct {
-		Mouse      *bool   `yaml:"mouse"`
-		Reverse    *bool   `yaml:"reverse"`
-		IgnoreCase *bool   `yaml:"ignore_case"`
-		InfoHidden *bool   `yaml:"info_hidden"`
-		Height     *string `yaml:"height"`
-		Prompt     *string `yaml:"prompt"`
-		Color      *string `yaml:"color"`
-	}
-
-	var parsed raw
-	if err := value.Decode(&parsed); err != nil {
-		return err
-	}
-
-	*f = Fzf{Mouse: true}
-
-	if parsed.Mouse != nil {
-		f.Mouse = *parsed.Mouse
-	}
-
-	if parsed.Reverse != nil {
-		f.Reverse = *parsed.Reverse
-	}
-
-	if parsed.IgnoreCase != nil {
-		f.IgnoreCase = *parsed.IgnoreCase
-	}
-
-	if parsed.InfoHidden != nil {
-		f.InfoHidden = *parsed.InfoHidden
-	}
-
-	if parsed.Height != nil {
-		f.Height = parsed.Height
-	}
-
-	if parsed.Prompt != nil {
-		f.Prompt = parsed.Prompt
-	}
-
-	if parsed.Color != nil {
-		f.Color = parsed.Color
-	}
-
+func (t *TuiSettings) UnmarshalYAML(value *yaml.Node) error {
+	// TuiSettings carries no fields yet. Legacy `tui: true|false` and
+	// `tui: {selected_color: ...}` shapes are accepted and ignored so old
+	// config files keep loading; token fields decode here once redefined.
+	*t = TuiSettings{}
 	return nil
 }
 

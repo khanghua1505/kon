@@ -13,10 +13,6 @@ func TestDefaultMatchesUpstream(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !s.Fzf.Mouse {
-		t.Error("fzf.mouse default must be true")
-	}
-
 	if !s.Prompt.ShowDepth {
 		t.Error("prompt.show_depth default must be true")
 	}
@@ -146,6 +142,7 @@ func TestLoadAppliesOverridesAndExcludesSelf(t *testing.T) {
 	config := "" +
 		"shell: bash\n" +
 		"default_editor: nano\n" +
+		"tui: true\n" +
 		"prompt:\n" +
 		"  disable: true\n" +
 		"  show_depth: false\n" +
@@ -157,13 +154,7 @@ func TestLoadAppliesOverridesAndExcludesSelf(t *testing.T) {
 		"hooks:\n" +
 		"  start_ctx: echo start\n" +
 		"fzf:\n" +
-		"  mouse: false\n" +
-		"  reverse: true\n" +
-		"  ignore_case: true\n" +
-		"  info_hidden: true\n" +
-		"  height: 50%\n" +
-		"  prompt: '> '\n" +
-		"  color: 'fg: red'\n"
+		"  mouse: false\n"
 
 	path := filepath.Join(home, ".kube", "kon.yaml")
 	if err := os.WriteFile(path, []byte(config), 0o600); err != nil {
@@ -207,24 +198,7 @@ func TestLoadAppliesOverridesAndExcludesSelf(t *testing.T) {
 		t.Errorf("hooks = %+v", s.Hooks)
 	}
 
-	if s.Fzf.Mouse || !s.Fzf.Reverse || !s.Fzf.IgnoreCase || !s.Fzf.InfoHidden {
-		t.Errorf("fzf flags not applied: %+v", s.Fzf)
-	}
-
-	if s.Fzf.Height == nil || *s.Fzf.Height != "50%" {
-		t.Errorf("fzf.height = %v, want 50%%", s.Fzf.Height)
-	}
-
-	if s.Fzf.Prompt == nil || *s.Fzf.Prompt != "> " {
-		t.Errorf("fzf.prompt = %v", s.Fzf.Prompt)
-	}
-
-	if s.Fzf.Color == nil || *s.Fzf.Color != "fg: red" {
-		t.Errorf("fzf.color = %v", s.Fzf.Color)
-	}
-
 	found := false
-
 	for _, exclude := range s.Configs.Exclude {
 		if exclude == path {
 			found = true
@@ -286,7 +260,7 @@ func TestLoadWithoutConfigFileUsesDefaults(t *testing.T) {
 		t.Fatalf("Load: %v", err)
 	}
 
-	if !s.Fzf.Mouse || !s.Prompt.ShowDepth {
+	if !s.Prompt.ShowDepth {
 		t.Error("missing config file must yield upstream defaults")
 	}
 

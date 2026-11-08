@@ -1,8 +1,5 @@
-# binaries
 /kon
-
-# goreleaser
 dist/
-
-# agent state
 .omo/
+.mo/
+vendor/

@@ -7,12 +7,30 @@ import (
 	"github.com/khanghua1505/kon/internal/vars"
 )
 
-func unsetEnv(t *testing.T, key string) {
+func unsetEnv(t *testing.T, keys ...string) {
 	t.Helper()
-	t.Setenv(key, "")
-	if err := os.Unsetenv(key); err != nil {
-		t.Fatalf("could not unset %s: %v", key, err)
+	for _, key := range keys {
+		t.Setenv(key, "")
+		if err := os.Unsetenv(key); err != nil {
+			t.Fatalf("could not unset %s: %v", key, err)
+		}
 	}
+}
+
+// envKeys returns the primary variable and every fallback it can resolve
+// through, so tests clear the whole group at once.
+func envKeys(env string) []string {
+	switch env {
+	case vars.EnvDepth:
+		return []string{vars.EnvDepth, vars.EnvKubieDepth}
+	case vars.EnvActive:
+		return []string{vars.EnvActive, vars.EnvKubieActive}
+	case vars.EnvSession:
+		return []string{vars.EnvSession, vars.EnvKubieSession}
+	case vars.EnvKubeconfig:
+		return []string{vars.EnvKubeconfig, vars.EnvAltKubeconfig, vars.EnvKubieKubeconfig}
+	}
+	return []string{env}
 }
 
 func TestDepth(t *testing.T) {
@@ -33,10 +51,9 @@ func TestDepth(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			unsetEnv(t, envKeys(vars.EnvDepth)...)
 			if tc.set {
 				t.Setenv(vars.EnvDepth, tc.value)
-			} else {
-				unsetEnv(t, vars.EnvDepth)
 			}
 			if got := vars.Depth(); got != tc.want {
 				t.Fatalf("Depth() = %d, want %d", got, tc.want)
@@ -61,10 +78,9 @@ func TestActive(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			unsetEnv(t, envKeys(vars.EnvActive)...)
 			if tc.set {
 				t.Setenv(vars.EnvActive, tc.value)
-			} else {
-				unsetEnv(t, vars.EnvActive)
 			}
 			if got := vars.Active(); got != tc.want {
 				t.Fatalf("Active() = %t, want %t", got, tc.want)
@@ -87,10 +103,9 @@ func TestEnsureActive(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			unsetEnv(t, envKeys(vars.EnvActive)...)
 			if tc.set {
 				t.Setenv(vars.EnvActive, tc.value)
-			} else {
-				unsetEnv(t, vars.EnvActive)
 			}
 
 			err := vars.EnsureActive()
@@ -125,10 +140,10 @@ func TestPathAccessors(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			unsetEnv(t, envKeys(tc.env)...)
+
 			if tc.set {
 				t.Setenv(tc.env, tc.value)
-			} else {
-				unsetEnv(t, tc.env)
 			}
 
 			var got string

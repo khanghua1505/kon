@@ -1,173 +1,56 @@
 package picker
 
 import (
-	"bytes"
+	"io"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/khanghua1505/kon/internal/settings"
 )
 
-// fakeFzf installs an fzf shim in dir and returns the file that receives the
-// arguments the shim was called with.
-func fakeFzf(t *testing.T, dir, body string) string {
+// forceTTY makes every stream look like a terminal for the duration of the
+// test, so the TUI branch runs without a real TTY.
+func forceTTY(t *testing.T) {
 	t.Helper()
 
-	argsFile := filepath.Join(dir, "args.txt")
-	script := "#!/bin/sh\ncat > /dev/null\n" +
-		"printf '%s\\n' \"$@\" > \"$FZF_ARGS_FILE\"\n" +
-		body
-
-	if err := os.WriteFile(filepath.Join(dir, "fzf"), []byte(script), 0o755); err != nil {
-		t.Fatalf("could not write the fzf shim: %v", err)
-	}
-
-	t.Setenv("FZF_ARGS_FILE", argsFile)
-	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
-
-	return argsFile
+	original := isTTY
+	isTTY = func(*os.File) bool { return true }
+	t.Cleanup(func() { isTTY = original })
 }
 
-func TestSelectFzfReturnsSelection(t *testing.T) {
-	dir := t.TempDir()
-	fakeFzf(t, dir, "printf 'beta\\n'\n")
+// pipeOut returns a pipe-backed output file plus a reader that must be
+// called once after the interaction to collect everything written to it.
+func pipeOut(t *testing.T) (*os.File, func() string) {
+	t.Helper()
 
-	var out bytes.Buffer
-
-	result, item, err := SelectWithOptions([]string{"alpha", "beta"}, Options{Mode: ModeFzf, Out: &out})
+	reader, writer, err := os.Pipe()
 	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
+		t.Fatalf("os.Pipe: %v", err)
 	}
 
-	if result != Selected {
-		t.Fatalf("expected Selected, got %v", result)
-	}
+	var captured strings.Builder
+	done := make(chan struct{})
+	go func() {
+		_, _ = io.Copy(&captured, reader)
+		close(done)
+	}()
 
-	if item != "beta" {
-		t.Fatalf("expected beta, got %q", item)
-	}
-}
+	t.Cleanup(func() {
+		_ = writer.Close()
+		_ = reader.Close()
+	})
 
-func TestSelectFzfAbortedIsNotAnError(t *testing.T) {
-	dir := t.TempDir()
-	fakeFzf(t, dir, "exit 130\n")
+	return writer, func() string {
+		_ = writer.Close()
+		<-done
 
-	result, item, err := SelectWithOptions([]string{"alpha", "beta"}, Options{Mode: ModeFzf})
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-
-	if result != Cancelled {
-		t.Fatalf("expected Cancelled, got %v", result)
-	}
-
-	if item != "" {
-		t.Fatalf("expected no item, got %q", item)
-	}
-}
-
-func TestSelectFzfNoMatchIsCancelled(t *testing.T) {
-	dir := t.TempDir()
-	fakeFzf(t, dir, "exit 1\n")
-
-	result, _, err := SelectWithOptions([]string{"alpha", "beta"}, Options{Mode: ModeFzf})
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-
-	if result != Cancelled {
-		t.Fatalf("expected Cancelled, got %v", result)
-	}
-}
-
-func TestSelectFzfGetsGoldenArgs(t *testing.T) {
-	dir := t.TempDir()
-	argsFile := fakeFzf(t, dir, "printf 'beta\\n'\n")
-
-	height := "50%"
-	prompt := "ctx>"
-	color := "fg:#fff"
-	fzf := settings.Fzf{
-		Mouse:      false,
-		Reverse:    true,
-		IgnoreCase: true,
-		InfoHidden: true,
-		Height:     &height,
-		Prompt:     &prompt,
-		Color:      &color,
-	}
-
-	if _, _, err := SelectWithOptions([]string{"alpha", "beta"}, Options{Mode: ModeFzf, Fzf: fzf}); err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-
-	got, err := os.ReadFile(argsFile)
-	if err != nil {
-		t.Fatalf("could not read the recorded arguments: %v", err)
-	}
-
-	want, err := os.ReadFile(filepath.Join("testdata", "fzf_args_full.golden"))
-	if err != nil {
-		t.Fatalf("could not read the golden file: %v", err)
-	}
-
-	if string(got) != string(want) {
-		t.Fatalf("arguments mismatch:\ngot:\n%s\nwant:\n%s", got, want)
-	}
-}
-
-func TestFzfArgsGolden(t *testing.T) {
-	height := "50%"
-	prompt := "ctx>"
-	color := "fg:#fff"
-
-	cases := []struct {
-		name   string
-		fzf    settings.Fzf
-		golden string
-	}{
-		{
-			name:   "default",
-			fzf:    settings.Fzf{Mouse: true},
-			golden: "fzf_args_default.golden",
-		},
-		{
-			name: "full",
-			fzf: settings.Fzf{
-				Mouse:      false,
-				Reverse:    true,
-				IgnoreCase: true,
-				InfoHidden: true,
-				Height:     &height,
-				Prompt:     &prompt,
-				Color:      &color,
-			},
-			golden: "fzf_args_full.golden",
-		},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := strings.Join(fzfArgs(tc.fzf), "\n") + "\n"
-
-			want, err := os.ReadFile(filepath.Join("testdata", tc.golden))
-			if err != nil {
-				t.Fatalf("could not read the golden file: %v", err)
-			}
-
-			if got != string(want) {
-				t.Fatalf("arguments mismatch:\ngot:\n%s\nwant:\n%s", got, want)
-			}
-		})
+		return captured.String()
 	}
 }
 
 func TestSelectListsItemsWhenNotATerminal(t *testing.T) {
 	t.Setenv("PATH", t.TempDir())
 
-	var out bytes.Buffer
+	var out strings.Builder
 
 	result, item, err := SelectWithOptions([]string{"beta", "alpha"}, Options{Out: &out})
 	if err != nil {
@@ -187,102 +70,27 @@ func TestSelectListsItemsWhenNotATerminal(t *testing.T) {
 	}
 }
 
-func TestSelectTerminalPromptReadsNumber(t *testing.T) {
+func TestSelectSingleItemListsWhenNotATerminal(t *testing.T) {
 	t.Setenv("PATH", t.TempDir())
 
-	var out bytes.Buffer
+	var out strings.Builder
 
-	result, item, err := SelectWithOptions([]string{"alpha", "beta"}, Options{
-		Mode: ModeTerminal,
-		In:   strings.NewReader("2\n"),
-		Out:  &out,
-	})
+	result, item, err := SelectWithOptions([]string{"only"}, Options{Out: &out})
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
 
-	if result != Selected {
-		t.Fatalf("expected Selected, got %v", result)
+	if result != Listed || item != "" {
+		t.Fatalf("expected Listed and no item, got %v %q", result, item)
 	}
 
-	if item != "alpha" {
-		t.Fatalf("expected alpha, got %q", item)
-	}
-
-	if !strings.Contains(out.String(), "1) beta") || !strings.Contains(out.String(), "2) alpha") {
-		t.Fatalf("expected the reversed menu, got %q", out.String())
-	}
-}
-
-func TestSelectTerminalPromptRepromptsOnInvalidNumber(t *testing.T) {
-	t.Setenv("PATH", t.TempDir())
-
-	var out bytes.Buffer
-
-	result, item, err := SelectWithOptions([]string{"alpha", "beta"}, Options{
-		Mode: ModeTerminal,
-		In:   strings.NewReader("abc\n9\n1\n"),
-		Out:  &out,
-	})
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-
-	if result != Selected {
-		t.Fatalf("expected Selected, got %v", result)
-	}
-
-	if item != "beta" {
-		t.Fatalf("expected beta, got %q", item)
-	}
-
-	if got := strings.Count(out.String(), "Invalid selection:"); got != 2 {
-		t.Fatalf("expected 2 invalid selections, got %d in %q", got, out.String())
-	}
-}
-
-func TestSelectTerminalPromptEndsOnEOF(t *testing.T) {
-	t.Setenv("PATH", t.TempDir())
-
-	var out bytes.Buffer
-
-	result, item, err := SelectWithOptions([]string{"alpha", "beta"}, Options{
-		Mode: ModeTerminal,
-		In:   strings.NewReader(""),
-		Out:  &out,
-	})
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-
-	if result != Cancelled {
-		t.Fatalf("expected Cancelled, got %v", result)
-	}
-
-	if item != "" {
-		t.Fatalf("expected no item, got %q", item)
-	}
-}
-
-func TestSelectReturnsSingleItemImmediately(t *testing.T) {
-	t.Setenv("PATH", t.TempDir())
-
-	result, item, err := Select([]string{"only"}, nil)
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-
-	if result != Selected {
-		t.Fatalf("expected Selected, got %v", result)
-	}
-
-	if item != "only" {
-		t.Fatalf("expected only, got %q", item)
+	if got := out.String(); got != "only\n" {
+		t.Fatalf("expected the single item listed, got %q", got)
 	}
 }
 
 func TestSelectWithoutItemsFails(t *testing.T) {
-	if _, _, err := Select(nil, nil); err == nil {
+	if _, _, err := Select(nil); err == nil {
 		t.Fatal("expected an error for an empty item list")
 	}
 }

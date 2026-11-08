@@ -13,11 +13,13 @@ func namespace(value string) *string {
 	return &value
 }
 
-func unsetEnv(t *testing.T, key string) {
+func unsetEnv(t *testing.T, keys ...string) {
 	t.Helper()
-	t.Setenv(key, "")
-	if err := os.Unsetenv(key); err != nil {
-		t.Fatalf("could not unset %s: %v", key, err)
+	for _, key := range keys {
+		t.Setenv(key, "")
+		if err := os.Unsetenv(key); err != nil {
+			t.Fatalf("could not unset %s: %v", key, err)
+		}
 	}
 }
 
@@ -157,7 +159,7 @@ func TestGetLastNamespace(t *testing.T) {
 
 func TestLoad(t *testing.T) {
 	t.Run("session variable unset", func(t *testing.T) {
-		unsetEnv(t, vars.EnvSession)
+		unsetEnv(t, vars.EnvSession, vars.EnvKubieSession)
 
 		loaded, err := session.Load()
 		if err != nil {
@@ -225,7 +227,7 @@ func TestLoad(t *testing.T) {
 
 func TestSave(t *testing.T) {
 	t.Run("session variable unset", func(t *testing.T) {
-		unsetEnv(t, vars.EnvSession)
+		unsetEnv(t, vars.EnvSession, vars.EnvKubieSession)
 
 		current := session.Session{}
 		if err := current.Save(); err == nil {

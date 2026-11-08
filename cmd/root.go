@@ -5,8 +5,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Version is the kon-go release version.
-const Version = "0.28.0-go"
+// Version is the kon release version.
+const Version = "0.29.0"
 
 // NewRootCmd builds kon's root command.
 func NewRootCmd() *cobra.Command {

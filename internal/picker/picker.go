@@ -1,8 +1,8 @@
 // Package picker lets the user choose one item out of a list.
 //
-// It mirrors Rust kon's select_or_list_* helpers: fzf is used when it is
-// installed and stdout is a terminal, otherwise the items are printed so
-// that scripts can consume them.
+// It mirrors Rust kon's select_or_list_* helpers: the full-screen TUI is
+// used when both streams are terminals, and otherwise the items are printed
+// so that scripts can consume them.
 package picker
 
 import (
@@ -11,8 +11,7 @@ import (
 	"os"
 	"slices"
 
-	"github.com/khanghua1505/kon/internal/settings"
-	"github.com/khanghua1505/kon/internal/tty"
+	"github.com/khanghua1505/kon/internal/tui/style"
 )
 
 // Result reports how a selection ended.
@@ -27,50 +26,34 @@ const (
 	Selected
 )
 
-// Mode selects the picker implementation.
-type Mode int
-
-const (
-	// ModeAuto uses fzf when it is installed and stdout is a terminal, and
-	// falls back to the numbered terminal prompt otherwise.
-	ModeAuto Mode = iota
-	// ModeFzf uses fzf when it is installed.
-	ModeFzf
-	// ModeTerminal always uses the numbered terminal prompt.
-	ModeTerminal
-)
-
 // Options tunes SelectWithOptions.
 type Options struct {
-	// Mode selects the picker implementation.
-	Mode Mode
-	// Fzf holds the display options that are passed to fzf.
-	Fzf settings.Fzf
-	// In is the stream the terminal prompt reads the choice from.
+	// Style carries the theme the TUI renders from.
+	Style style.Style
+	// In is the input stream of the interactive TUI.
 	In io.Reader
-	// Out is the stream the item list and the prompt are written to.
+	// Out is the stream the TUI and the item list are written to.
 	Out io.Writer
+}
+
+// isTTY reports whether the file is attached to a terminal. It is a variable
+// so tests can force either branch of the fallback chain.
+var isTTY = func(f *os.File) bool {
+	info, err := f.Stat()
+	return err == nil && info.Mode()&os.ModeCharDevice != 0
 }
 
 // Select presents items and reports the outcome. It is the Go counterpart of
 // Rust kon's select_or_list_* helpers.
-func Select(items []string, fzf *settings.Fzf) (Result, string, error) {
-	opts := Options{}
-	if fzf != nil {
-		opts.Fzf = *fzf
-	}
-
-	return SelectWithOptions(items, opts)
+func Select(items []string) (Result, string, error) {
+	return SelectWithOptions(items, Options{})
 }
 
-// SelectWithOptions presents items and reports the outcome.
+// SelectWithOptions presents items and reports the outcome. The TUI runs
+// when both streams are terminals; otherwise the items are listed.
 func SelectWithOptions(items []string, opts Options) (Result, string, error) {
 	if len(items) == 0 {
 		return Cancelled, "", fmt.Errorf("no items to select")
-	}
-
-	if len(items) == 1 {
-		return Selected, items[0], nil
 	}
 
 	opts = opts.withDefaults()
@@ -82,27 +65,30 @@ func SelectWithOptions(items []string, opts Options) (Result, string, error) {
 	menu := slices.Clone(sorted)
 	slices.Reverse(menu)
 
-	switch {
-	case opts.Mode == ModeTerminal:
-		return promptList(menu, opts)
-	case fzfAvailable() && (opts.Mode == ModeFzf || isTerminal(opts.Out)):
-		return runFzf(menu, opts)
-	case isTerminal(opts.Out):
-		return promptList(menu, opts)
-	default:
-		return listItems(sorted, opts)
+	if attachedToTerminal(opts) {
+		return runTui(menu, opts)
 	}
+
+	return listItems(sorted, opts)
 }
 
-// listItems prints the items one per line so that scripts can consume them.
-func listItems(sorted []string, opts Options) (Result, string, error) {
-	for _, item := range sorted {
+// listItems prints the sorted items one per line and reports them as listed.
+func listItems(items []string, opts Options) (Result, string, error) {
+	for _, item := range items {
 		if _, err := fmt.Fprintln(opts.Out, item); err != nil {
-			return Listed, "", fmt.Errorf("could not print the item list: %w", err)
+			return Cancelled, "", fmt.Errorf("could not print the item list: %w", err)
 		}
 	}
 
 	return Listed, "", nil
+}
+
+// attachedToTerminal reports whether both picker streams are terminals.
+func attachedToTerminal(opts Options) bool {
+	in, okIn := opts.In.(*os.File)
+	out, okOut := opts.Out.(*os.File)
+
+	return okIn && okOut && isTTY(in) && isTTY(out)
 }
 
 func sortedItems(items []string) []string {
@@ -121,15 +107,9 @@ func (o Options) withDefaults() Options {
 		o.Out = os.Stdout
 	}
 
-	return o
-}
-
-// isTerminal reports whether the output stream is attached to a terminal.
-func isTerminal(out io.Writer) bool {
-	file, ok := out.(*os.File)
-	if !ok {
-		return false
+	if o.Style == (style.Style{}) {
+		o.Style = style.Default()
 	}
 
-	return tty.IsTerminal(file)
+	return o
 }

@@ -12,6 +12,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/khanghua1505/kon/internal/tty"
+	"github.com/khanghua1505/kon/internal/tui/style"
 )
 
 const configFileName = "kon.yaml"
@@ -21,12 +22,16 @@ const legacyConfigFileName = "kubie.yaml"
 type Settings struct {
 	Shell         *string
 	DefaultEditor *string
+	Tui           TuiSettings
 	Configs       Configs
 	Prompt        Prompt
 	Behavior      Behavior
 	Hooks         Hooks
-	Fzf           Fzf
 }
+
+// TuiSettings feeds the TUI theme. The shape is being redefined, so it is
+// empty for now and FromSettings applies the default palette.
+type TuiSettings struct{}
 
 // Configs holds the kubeconfig file globs.
 type Configs struct {
@@ -56,17 +61,6 @@ type Hooks struct {
 	StopCtx  string
 }
 
-// Fzf holds the dropdown menu options.
-type Fzf struct {
-	Mouse      bool
-	Reverse    bool
-	IgnoreCase bool
-	InfoHidden bool
-	Height     *string
-	Prompt     *string
-	Color      *string
-}
-
 // Default returns the settings kubie uses when no config file exists.
 func Default() (*Settings, error) {
 	home, err := homeDir()
@@ -80,7 +74,7 @@ func Default() (*Settings, error) {
 			ValidateNamespaces: ValidateNamespacesTrue,
 			PrintContextInExec: ContextHeaderAuto,
 		},
-		Fzf: Fzf{Mouse: true},
+		Tui: TuiSettings{},
 	}, nil
 }
 
@@ -166,6 +160,11 @@ func (s *Settings) GetKubeConfigsPaths() ([]string, error) {
 	sort.Strings(resolved)
 
 	return resolved, nil
+}
+
+// GetStyle resolves Style
+func (s *Settings) GetStyle() style.Style {
+	return style.Default()
 }
 
 // ExpandUser expands a leading "~/" with the home directory.
