@@ -76,7 +76,6 @@ func runCtx(cmd *cobra.Command, opts *ctxOptions, args []string) error {
 		}
 		result, selected, err := picker.SelectWithOptions(names, picker.Options{
 			Mode: mode,
-			Fzf:  cfg.Fzf,
 			In:   cmd.InOrStdin(),
 			Out:  cmd.OutOrStdout(),
 		})
