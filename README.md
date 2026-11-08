@@ -44,7 +44,7 @@ it, kon falls back to plain terminal lists.
 * `kon lint` lint kubeconfig files and report issues
 * `kon edit` display selectable menu of contexts to edit
 * `kon edit <context>` edit the file containing this context
-* `kon edit-config` edit kubie's own config file
+* `kon edit-config` edit kon's own config file
 * `kon delete <context>` delete a context, its cluster and its user
 * `kon update` check for a new release and update the local installation
 * `kon generate-completion [SHELL]` generate a completion script for the given shell
@@ -61,17 +61,28 @@ kon generate-completion fish | source
 
 ### Settings
 
-Kubie reads its own settings from `~/.kube/kubie.yaml`. The file uses the same keys
-as upstream kubie (`shell`, `default_editor`, `configs`, `prompt`, `behavior`,
-`hooks`, `fzf`).
+kon reads its own settings from `~/.kube/kon.yaml`. If that file does not
+exist but `~/.kube/kubie.yaml` does, the kubie file is used instead, so
+existing setups keep working. The file uses the same keys as upstream kubie
+(`shell`, `default_editor`, `configs`, `prompt`, `behavior`, `hooks`, `fzf`).
+
+### Environment variables
+
+Inside a kon shell, `KON_*` variables describe the active shell:
+`KON_ACTIVE`, `KON_DEPTH`, `KON_KUBECONFIG` (also written as
+`KON_KUBE_CONFIG`), `KON_SESSION`, `KON_STATE`, plus per-shell prompt flags.
+Commands read `KON_*` first and fall back to the legacy `KUBIE_*` variables,
+so shells spawned by the original kubie keep working. kon-spawned shells
+export both families with the same values, which keeps kubie-era prompt
+scripts and `KUBIE_*`-aware tooling functional.
 
 ## Divergences from upstream
 
 Intentional/known behavioral differences vs kubie-org/kubie (Rust):
 
-- **State file location.** Upstream fixes the state path at the platform data dir (`kubie/state.json`). This port honors `$KUBIE_STATE` when set and falls back to the same platform data dir otherwise.
+- **State file location.** Upstream fixes the state path at the platform data dir (`kubie/state.json`). This port honors `$KON_STATE` when set and falls back to the same platform data dir otherwise. (`$KUBIE_STATE` is read as a legacy fallback.)
 - **`ctx -n ""`.** Upstream treats an explicit empty namespace as an override. Here an empty `-n` value means "not requested" and falls back to the remembered namespace.
-- **`KUBIE_KUBECONFIG` error text.** Upstream: `KUBIE_KUBECONFIG variable not set`. Here: `KUBIE_KUBECONFIG env variable missing`.
+- **`KON_KUBECONFIG` error text.** Upstream: `KON_KUBECONFIG variable not set`. Here: `KON_KUBECONFIG env variable missing`.
 - **Namespace-list parsing.** Upstream splits `kubectl` output lines on the first space only; here on the first space or tab. Equivalent for real `kubectl` output.
 - **State writes.** Upstream writes the state file in place; here a temp file is written next to it and renamed, so readers never see a partial file. The state directory is also pre-checked and a non-directory path reported explicitly.
 
