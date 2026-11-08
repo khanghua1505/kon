@@ -25,8 +25,11 @@ The binary lands in `$GOBIN` (default `$(go env GOPATH)/bin`).
 
 Selectable menus are available using `kon ctx` and `kon ns`.
 
-`fzf` is an optional dependency. It enables interactive fuzzy selection; without
-it, kon falls back to plain terminal lists.
+`kon` ships a built-in TUI picker powered by Bubble Tea, enabled by default.
+Picker fallback order is: select a single item directly, open the TUI when
+enabled on a terminal, show a terminal list prompt, then print a numbered list
+for non-interactive output. Set `tui.enabled: false` (or scalar `tui: false`)
+to skip the TUI and use the terminal list.
 
 * `kon ctx` display selectable menu of contexts
 * `kon ctx <context>` switch current shell to given context (spawns shell if not kon shell)
@@ -69,8 +72,8 @@ kon generate-completion fish | source
 
 kon reads its own settings from `~/.kube/kon.yaml`. If that file does not
 exist but `~/.kube/kubie.yaml` does, the kubie file is used instead, so
-existing setups keep working. The file uses the same keys as upstream kubie
-(`shell`, `default_editor`, `tui`, `configs`, `prompt`, `behavior`, `hooks`, `fzf`).
+existing setups keep working. The file accepts these keys:
+`shell`, `default_editor`, `tui`, `configs`, `prompt`, `behavior`, `hooks`.
 
 
 ```yaml
@@ -84,10 +87,19 @@ shell: bash
 # Default: unset
 default_editor: vim
 
-# Spawn contexts through a full-screen terminal picker (opencode style)
-# instead of fzf. Applies to `kon ctx` without an argument.
-# Default: false
-tui: false
+# Configure the built-in TUI picker. Scalar `tui: true` and `tui: false` are
+# also accepted. Set `enabled: false` to fall back to the terminal list.
+# Colors accept 16 ANSI names (black, red, green, yellow, blue, magenta,
+# cyan, white, brightblack, brightred, brightgreen, brightyellow, brightblue,
+# brightmagenta, brightcyan, brightwhite), a decimal ANSI index such as 212,
+# or a hex value such as "#ff5f87".
+# Invalid colors fall back to 212 (selected) and 238 (border) without error.
+# Legacy picker keys are ignored silently.
+# Default: enabled
+tui:
+    enabled: true
+    selected_color: magenta
+    border_color: "#ff5f87"
 
 # Configure where to look for kubernetes config files.
 configs:
@@ -176,39 +188,6 @@ hooks:
     # Default: none
     stop_ctx: >
         echo -en "\033]1; $SHELL \007"
-
-# Customize drop-down skim menu display options.
-# Kubie uses skim as fzf-compatible Rust library for interactive menus.
-fzf:
-    # Enable mouse support in the selectable menu.
-    # Default: true
-    mouse: true
-
-    # Reverse the layout of the menu (show prompt at top).
-    # Default: false
-    reverse: false
-
-    # Enable case-insensitive search.
-    # Default: false
-    ignore_case: false
-
-    # Hide the info line (match count).
-    # Default: false
-    info_hidden: false
-
-    # Set the height of the menu. Can be a percentage (e.g., "50%") or a fixed
-    # number of rows (e.g., "20").
-    # Default: unset (uses full screen)
-    height: "50%"
-
-    # Customize the prompt string.
-    # Default: unset
-    prompt: "> "
-
-    # Set a color scheme. See skim documentation for color format.
-    # See more option in skim docs: https://github.com/skim-rs/skim?tab=readme-ov-file#color-scheme
-    # Default: unset
-    color: "dark"
 ```
 
 ### Environment variables
