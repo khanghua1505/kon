@@ -1,6 +1,6 @@
 # kon
 
-<img src="https://s3.zerochan.net/Kon.%28BLEACH%29.240.1115386.avif" alt="Kon (BLEACH)" title="Kon from BLEACH" align="right" width="240"/>
+<img src="assets/kon-icon.png" alt="Kon (BLEACH)" title="Kon from BLEACH" align="right" width="240"/>
 
 `kon` is a Go port of [kubie](https://github.com/kubie-org/kubie), an alternative to `kubectx`, `kubens` and the
 `k on` prompt modification script. It offers context switching, namespace switching and prompt modification in a way
