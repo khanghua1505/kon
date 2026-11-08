@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Config
+preferences: {}
+current-context: testctx
+clusters:
+- name: testcluster
+  cluster:
+    server: https://testcluster.example.test
+users:
+- name: testuser
+  user:
+    token: testuser-token
+contexts:
+- name: testctx
+  context:
+    cluster: testcluster
+    user: testuser
