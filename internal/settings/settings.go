@@ -1,5 +1,5 @@
 // Package settings loads kon's own configuration from ~/.kube/kon.yaml or
-// ~/.kube/kubie.yaml.
+// ~/.kube/kon.yaml.
 package settings
 
 import (
@@ -17,7 +17,7 @@ import (
 const configFileName = "kon.yaml"
 const legacyConfigFileName = "kubie.yaml"
 
-// Settings is the parsed ~/.kube/kubie.yaml file.
+// Settings is the parsed ~/.kube/kon.yaml file.
 type Settings struct {
 	Shell         *string
 	DefaultEditor *string

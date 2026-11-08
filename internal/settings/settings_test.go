@@ -120,7 +120,7 @@ func TestLoadReportsParseErrors(t *testing.T) {
 		t.Fatalf("mkdir: %v", err)
 	}
 
-	broken := filepath.Join(home, ".kube", "kubie.yaml")
+	broken := filepath.Join(home, ".kube", "kon.yaml")
 	if err := os.WriteFile(broken, []byte("shell: [unterminated\n"), 0o600); err != nil {
 		t.Fatalf("write config: %v", err)
 	}
@@ -165,7 +165,7 @@ func TestLoadAppliesOverridesAndExcludesSelf(t *testing.T) {
 		"  prompt: '> '\n" +
 		"  color: 'fg: red'\n"
 
-	path := filepath.Join(home, ".kube", "kubie.yaml")
+	path := filepath.Join(home, ".kube", "kon.yaml")
 	if err := os.WriteFile(path, []byte(config), 0o600); err != nil {
 		t.Fatalf("write config: %v", err)
 	}
@@ -249,7 +249,7 @@ func TestValidateNamespacesAcceptsBoolAndPartial(t *testing.T) {
 		"true":    ValidateNamespacesTrue,
 		"partial": ValidateNamespacesPartial,
 	} {
-		path := filepath.Join(home, ".kube", "kubie.yaml")
+		path := filepath.Join(home, ".kube", "kon.yaml")
 		config := "behavior:\n  validate_namespaces: " + value + "\n"
 
 		if err := os.WriteFile(path, []byte(config), 0o600); err != nil {

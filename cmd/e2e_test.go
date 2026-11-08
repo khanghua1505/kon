@@ -32,7 +32,7 @@ func prepareE2EHome(t *testing.T) string {
 	if err := os.WriteFile(filepath.Join(home, ".kube", "config"), fixture, 0o600); err != nil {
 		t.Fatalf("write kubeconfig: %v", err)
 	}
-	if err := os.WriteFile(filepath.Join(home, ".kube", "kubie.yaml"), []byte("shell: bash\n"), 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(home, ".kube", "kon.yaml"), []byte("shell: bash\n"), 0o600); err != nil {
 		t.Fatalf("write settings: %v", err)
 	}
 	t.Setenv("HOME", home)
@@ -55,7 +55,7 @@ func TestE2ELintGolden(t *testing.T) {
 		t.Fatalf("resolve fixture: %v", err)
 	}
 	config := []byte("configs:\n  include:\n    - " + fixture + "\n")
-	if err := os.WriteFile(filepath.Join(home, ".kube", "kubie.yaml"), config, 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(home, ".kube", "kon.yaml"), config, 0o600); err != nil {
 		t.Fatalf("write settings: %v", err)
 	}
 
