@@ -5,7 +5,12 @@ import (
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
+
+func newTestModel(items []string) tuiModel {
+	return newTuiModel(items, lipgloss.Color("212"), lipgloss.Color("238"))
+}
 
 func updateKeys(t *testing.T, m tuiModel, keys ...tea.KeyMsg) tuiModel {
 	t.Helper()
@@ -23,7 +28,7 @@ func keyRunes(s string) tea.KeyMsg {
 }
 
 func TestTuiModelFilterSelects(t *testing.T) {
-	m := newTuiModel([]string{"dev-a", "prod-eu", "dev-b"})
+	m := newTestModel([]string{"dev-a", "prod-eu", "dev-b"})
 
 	m = updateKeys(t, m, keyRunes("dev"), tea.KeyMsg{Type: tea.KeyDown}, tea.KeyMsg{Type: tea.KeyEnter})
 
@@ -33,7 +38,7 @@ func TestTuiModelFilterSelects(t *testing.T) {
 }
 
 func TestTuiModelEscCancels(t *testing.T) {
-	m := newTuiModel([]string{"dev-a"})
+	m := newTestModel([]string{"dev-a"})
 
 	m = updateKeys(t, m, tea.KeyMsg{Type: tea.KeyEsc})
 
@@ -43,7 +48,7 @@ func TestTuiModelEscCancels(t *testing.T) {
 }
 
 func TestTuiModelEmptyQueryListsAll(t *testing.T) {
-	m := newTuiModel([]string{"dev-a", "prod-eu"})
+	m := newTestModel([]string{"dev-a", "prod-eu"})
 
 	if len(m.filtered) != 2 {
 		t.Errorf("filtered = %v, want all items", m.filtered)
@@ -51,7 +56,7 @@ func TestTuiModelEmptyQueryListsAll(t *testing.T) {
 }
 
 func TestTuiModelBackspaceRestores(t *testing.T) {
-	m := newTuiModel([]string{"dev-a", "prod-eu"})
+	m := newTestModel([]string{"dev-a", "prod-eu"})
 
 	m = updateKeys(t, m, keyRunes("zzz"), tea.KeyMsg{Type: tea.KeyBackspace, Runes: []rune("z")}, tea.KeyMsg{Type: tea.KeyBackspace, Runes: []rune("z")}, tea.KeyMsg{Type: tea.KeyBackspace, Runes: []rune("z")})
 
@@ -61,7 +66,7 @@ func TestTuiModelBackspaceRestores(t *testing.T) {
 }
 
 func TestTuiModelCursorClamps(t *testing.T) {
-	m := newTuiModel([]string{"a", "b", "c"})
+	m := newTestModel([]string{"a", "b", "c"})
 
 	m = updateKeys(t, m, tea.KeyMsg{Type: tea.KeyUp})
 
@@ -100,7 +105,7 @@ func TestTuiWindowClampsToList(t *testing.T) {
 }
 
 func TestTuiViewShowsFrame(t *testing.T) {
-	m := newTuiModel([]string{"dev-a"})
+	m := newTestModel([]string{"dev-a"})
 	m = updateKeys(t, m, keyRunes("dev"))
 
 	view := m.View()

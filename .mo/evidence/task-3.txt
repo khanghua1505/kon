@@ -1,0 +1,22 @@
+# task-3 acceptance @ 3bdfb89 (pre-commit)
+== go build ./internal/... ==
+BUILD_OK
+== go test -count=1 ./internal/picker/ ==
+ok  	github.com/khanghua1505/kon/internal/picker	0.150s
+TEST_OK
+== go vet ./internal/... ==
+VET_OK
+== Mode enum/field in product code (expect NONE_PRODUCT) ==
+NONE_PRODUCT
+== files still containing Mode substring (Model naming only) ==
+internal/picker/picker.go
+internal/picker/picker_tui.go
+internal/picker/picker_tui_test.go
+== fzf in internal/picker (expect NO_FZF) ==
+NO_FZF
+== cmd/ breakage expected until row 4 ==
+# github.com/khanghua1505/kon/cmd
+cmd/ctx.go:73:18: undefined: picker.ModeAuto
+cmd/ctx.go:74:6: non-boolean condition in if statement
+cmd/ctx.go:75:18: undefined: picker.ModeTui
+cmd/ctx.go:78:4: unknown field Mode in struct literal of type picker.Options

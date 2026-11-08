@@ -12,12 +12,10 @@ import (
 const tuiMaxListRows = 20
 
 var (
-	tuiTitleStyle    = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("39"))
-	tuiQueryStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("254"))
-	tuiSelectedStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("212"))
-	tuiItemStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("252"))
-	tuiDimStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
-	tuiBoxStyle      = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("238")).Padding(0, 1)
+	tuiTitleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("39"))
+	tuiQueryStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("254"))
+	tuiItemStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("252"))
+	tuiDimStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
 )
 
 // tuiModel is the bubbletea model behind the full-screen picker.
@@ -30,11 +28,13 @@ type tuiModel struct {
 	quitting bool
 	width    int
 	height   int
+	selected lipgloss.TerminalColor
+	border   lipgloss.TerminalColor
 }
 
-// newTuiModel builds the model for the given menu.
-func newTuiModel(items []string) tuiModel {
-	return tuiModel{items: items, filtered: items}
+// newTuiModel builds the model for the given menu and colors.
+func newTuiModel(items []string, selected, border lipgloss.TerminalColor) tuiModel {
+	return tuiModel{items: items, filtered: items, selected: selected, border: border}
 }
 
 // Init satisfies tea.Model.
@@ -88,11 +88,13 @@ func (m tuiModel) View() string {
 		return ""
 	}
 
+	selectedStyle := lipgloss.NewStyle().Bold(true).Foreground(m.selected)
+
 	var rows []string
 	start, visible := tuiWindow(m.filtered, m.cursor, m.listRows())
 	for i, item := range visible {
 		if start+i == m.cursor {
-			rows = append(rows, tuiSelectedStyle.Render("❯ "+item))
+			rows = append(rows, selectedStyle.Render("❯ "+item))
 		} else {
 			rows = append(rows, tuiItemStyle.Render("  "+item))
 		}
@@ -110,7 +112,8 @@ func (m tuiModel) View() string {
 		},
 		rows...,
 	)
-	box := tuiBoxStyle.Render(lipgloss.JoinVertical(lipgloss.Left, lines...))
+	boxStyle := lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(m.border).Padding(0, 1)
+	box := boxStyle.Render(lipgloss.JoinVertical(lipgloss.Left, lines...))
 	help := tuiDimStyle.Render("  ↑/↓ move · enter select · esc cancel")
 
 	return lipgloss.JoinVertical(lipgloss.Left, box, help)
@@ -176,7 +179,8 @@ func tuiWindow(items []string, cursor, size int) (int, []string) {
 
 // runTui shows the full-screen picker and returns the outcome.
 func runTui(items []string, opts Options) (Result, string, error) {
-	program := tea.NewProgram(newTuiModel(items), tea.WithInput(opts.In), tea.WithOutput(opts.Out))
+	selected, border := resolveColors(opts.Tui)
+	program := tea.NewProgram(newTuiModel(items, selected, border), tea.WithInput(opts.In), tea.WithOutput(opts.Out))
 	final, err := program.Run()
 	if err != nil {
 		return Cancelled, "", fmt.Errorf("could not run the picker: %w", err)
