@@ -77,7 +77,7 @@ func installConfig(cmd *cobra.Command, shell string) error {
 		return err
 	}
 
-	fmt.Fprintf(cmd.OutOrStdout(), "Installed kon configuration to %s\n", rcPath)
+	fmt.Fprintf(cmd.OutOrStdout(), "Installed kon configuration to %s\n", rcPath) //nolint:errcheck
 	return nil
 }
 
@@ -98,7 +98,7 @@ func writeNushellAliases(cmd *cobra.Command, bin string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	aliasCmd := &cobra.Command{Use: bin}
 	aliasCmd.SetOut(file)

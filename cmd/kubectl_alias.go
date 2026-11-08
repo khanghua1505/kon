@@ -79,7 +79,7 @@ func generateKubectlAliases(cmd *cobra.Command, shell string) error {
 		}
 		name := strings.Join(alias, "")
 		if seen[name] {
-			fmt.Fprintf(cmd.ErrOrStderr(), "Alias conflict detected: %s\n", name)
+			fmt.Fprintf(cmd.ErrOrStderr(), "Alias conflict detected: %s\n", name) //nolint:errcheck
 		}
 		seen[name] = true
 
